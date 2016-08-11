@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	"image/draw"
 	"image/png"
@@ -9,6 +10,8 @@ import (
 )
 
 const (
+	SquareSize = 16
+
 	CeilingBottomLeft1 = "1.png"
 
 	CeilingTop1 = "2.png"
@@ -65,9 +68,9 @@ const (
 
 	FloorBottomRight1 = "214.png"
 
-	FLOOR_LEFT_1 = "215.png"
-	FLOOR_LEFT_2 = "216.png"
-	FLOOR_LEFT_3 = "217.png"
+	FloorLeft1 = "215.png"
+	FloorLeft2 = "216.png"
+	FloorLeft3 = "217.png"
 
 	FloorTop1 = "218.png"
 	FloorTop2 = "219.png"
@@ -80,32 +83,62 @@ const (
 	FloorRight1  = "224.png"
 	FloorRight2  = "225.png"
 	FloorRight13 = "226.png"
+
+	FloorCenter1 = "259.png"
+
+	BannerRed1 = "290.png"
+
+	HeroUnarmed2 = "302.png"
+	HeroArmed2   = "303.png"
+
+	GorgonArmed = "326.png"
+
+	TableHorizontal = "75.png"
 )
 
 type Spritemap struct {
 	SmallMonsters []*Frame
-	frames        map[string]Frame
-	spritesheet   *image.RGBA
+	Frames        map[string]Frame
+	Spritesheet   *image.RGBA
 }
 
 type Sprite struct {
 	Dimensions Dimensions
-	Image      image.Image
+	// Image      image.Image
+}
+
+func (s *Spritemap) BlipInto(dst *image.RGBA, x int, y int, spriteName string) {
+	sprite := s.Sprite(spriteName)
+
+	point := image.Point{
+		X: x,
+		Y: y,
+	}
+
+	Debug(fmt.Sprintf("%+v - %+v\n", sprite.Dimensions, point))
+
+	// rect := image.Rect(point.X, point.Y, point.X + sprite.Dimensions.W, point.Y + sprite.Dimensions)
+
+	pointOnSpritesheet := image.Point{sprite.Dimensions.X, sprite.Dimensions.Y}
+
+	position := image.Rect(x, y, x+sprite.Dimensions.W, y+sprite.Dimensions.H)
+
+	draw.Draw(dst, position, s.Spritesheet, pointOnSpritesheet, draw.Over)
 }
 
 func (s *Spritemap) Sprite(name string) *Sprite {
 	// TODO not found?
-	frame, found := s.frames[name]
+	frame, found := s.Frames[name]
 	if found {
-		rect := image.Rect(
-			frame.Dimensions.X,
-			frame.Dimensions.Y,
-			frame.Dimensions.X+frame.Dimensions.W,
-			frame.Dimensions.Y+frame.Dimensions.H,
-		)
+		// rect := image.Rect(
+		// 	frame.Dimensions.X,
+		// 	frame.Dimensions.Y,
+		// 	frame.Dimensions.X+frame.Dimensions.W,
+		// 	frame.Dimensions.Y+frame.Dimensions.H,
+		// )
 		return &Sprite{
 			Dimensions: frame.Dimensions,
-			Image:      s.spritesheet.SubImage(rect),
+			// Image:      s.spritesheet.SubImage(rect),
 		}
 	}
 	return nil
@@ -135,7 +168,7 @@ func NewSpritemap(frames map[string]Frame, spritesheet *image.RGBA) Spritemap {
 
 	return Spritemap{
 		SmallMonsters: []*Frame{},
-		frames:        frames,
-		spritesheet:   spritesheet,
+		Frames:        frames,
+		Spritesheet:   spritesheet,
 	}
 }

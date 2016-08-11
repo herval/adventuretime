@@ -1,6 +1,5 @@
 package main
 
-
 // TODO position sprite
 // TODO render stats
 

@@ -1,65 +1,39 @@
 package main
 
 import (
-	"fmt"
 	"image"
-	"image/draw"
 	"image/png"
 	"os"
 	"testing"
 )
 
-const SquareSize = 16
-
-func blip(m *image.RGBA, x int, y int, spriteName string, spritemap *Spritemap) {
-	sprite := spritemap.Sprite(spriteName)
-
-	point := image.Point{
-		X: (x * SquareSize),
-		Y: (y * SquareSize),
-	}
-
-	fmt.Printf("%+v - %+v\n", sprite.Dimensions, point)
-
-	// rect := image.Rect(point.X, point.Y, point.X + sprite.Dimensions.W, point.Y + sprite.Dimensions)
-
-	// zero := image.Point{0, 0}
-	draw.Draw(m, m.Bounds(), sprite.Image, point, draw.Over)
-}
-
 func TestRenderer(t *testing.T) {
-
 	println("Rendering...")
 
 	spritemap := LoadSpritemap()
 
-	// var floorTiles = []image.Rectangle{}
-	// for i := 0; i < 20; i++ {
-	// 	floorTiles = append(
-	// 		floorTiles,
-	// 		image.Rectangle{
-	// 			Min: image.Point{X: (i * 16), Y: 112},
-	// 			Max: image.Point{X: (i * 16) + 16, Y: 128},
-	// 		})
-	// 	floorTiles = append(
-	// 		floorTiles,
-	// 		image.Rectangle{
-	// 			Min: image.Point{X: (i * 16), Y: 129},
-	// 			Max: image.Point{X: (i * 16) + 16, Y: 145},
-	// 		})
-	// }
-	// fmt.Println("%v", floorTiles)
-
 	m := image.NewRGBA(image.Rect(0, 0, 400, 400))
-	for i := 0; i < 20; i++ {
-		for j := 0; j < 20; j++ {
-			blip(m, i, j, "220.png", &spritemap)
+	for i := 5; i < 20; i++ {
+		spritemap.BlipInto(m, i*SquareSize, 4*SquareSize, FloorTop1)
+		for j := 5; j < 20; j++ {
+			spritemap.BlipInto(m, i*SquareSize, j*SquareSize, FloorCenter1)
 		}
+		spritemap.BlipInto(m, i*SquareSize, 20*SquareSize, FloorBottom1)
 	}
 
-	blip(m, 3, 5, "290.png", &spritemap)
-	blip(m, 3, 5, "303.png", &spritemap)
-	blip(m, 4, 5, "308.png", &spritemap)
+	for j := 5; j < 20; j++ {
+		spritemap.BlipInto(m, 4*SquareSize, j*SquareSize, FloorLeft1)
+		spritemap.BlipInto(m, 20*SquareSize, j*SquareSize, FloorRight1)
+	}
+
+	spritemap.BlipInto(m, 20*SquareSize, 4*SquareSize, FloorTopRight1)
+	spritemap.BlipInto(m, 4*SquareSize, 4*SquareSize, FloorTopLeft1)
+	spritemap.BlipInto(m, 4*SquareSize, 20*SquareSize, FloorBottomLeft1)
+	spritemap.BlipInto(m, 20*SquareSize, 20*SquareSize, FloorBottomRight1)
+
+	spritemap.BlipInto(m, 10*SquareSize, 18*SquareSize, HeroArmed2)
+	spritemap.BlipInto(m, 15*SquareSize, 5*SquareSize, GorgonArmed)
+	spritemap.BlipInto(m, 14*SquareSize, 9*SquareSize, TableHorizontal)
 
 	toimg, _ := os.Create("new.png")
 	defer toimg.Close()
