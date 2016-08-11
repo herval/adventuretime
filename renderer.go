@@ -34,7 +34,7 @@ func LoadSpritemap() {
 
 	// TODO handle errors
 	// TODO build a more flexible tilemap format
-	path, _ := filepath.Abs("./tileset.png")
+	path, _ := filepath.Abs("./sprites.png")
 
 	sheet, err := os.Open(path)
 	if err != nil {
