@@ -1,9 +1,8 @@
 package main
 
 import (
-	"testing"
-	"reflect"
 	"fmt"
+	"testing"
 )
 
 func TestSitemapLoader(t *testing.T) {
@@ -16,5 +15,5 @@ func TestSitemapLoader(t *testing.T) {
 	}
 
 	fmt.Printf("Loaded succesfully: ")
-	fmt.Printf("%+v", reflect.ValueOf(data).MapKeys())
+	fmt.Printf("%+v", data) //reflect.ValueOf(data).MapKeys())
 }

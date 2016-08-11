@@ -1,10 +1,10 @@
 package main
 
 import (
-	"io/ioutil"
-	"fmt"
-	"os"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
 	"path/filepath"
 )
 
@@ -37,8 +37,7 @@ type Dimensions struct {
 }
 
 type Frame struct {
-	Dimensions Dimensions
-
+	Dimensions Dimensions `json:"frame"`
 }
 
 type jsonobject struct {

@@ -7,10 +7,7 @@ import (
 
 func TestSpritemap(t *testing.T) {
 
-	loader := FramesLoader{}
-	data := loader.Parse("./sprites.json")
-
-	spritemap := NewSpritemap(data)
+	spritemap := LoadSpritemap()
 
 	fmt.Printf("%+v", spritemap.SmallMonsters)
 
