@@ -1,9 +1,34 @@
 package main
 
+import (
+	"image"
+	"image/png"
+	"os"
+)
+
 // TODO position sprite
 // TODO render stats
 
-func Foo() {
+// maps a scene to a spritemap and renders it as an image
+type Renderer struct {
+	Sprites    Spritemap
+	CanvasSize image.Rectangle
+}
+
+func (r *Renderer) DrawScene(scene Scene) *image.RGBA {
+	m := image.NewRGBA(r.CanvasSize)
+
+	return m
+}
+
+func SaveImage(img *image.RGBA, destination string) {
+	dest, _ := os.Create("new.png")
+	defer dest.Close()
+
+	png.Encode(dest, img)
+}
+
+func NewRenderer() Renderer {
 	//var floorTiles = []image.Rectangle{}
 	//for i := 0; i < 480; i++ {
 	//	floorTiles = append(
@@ -52,4 +77,8 @@ func Foo() {
 	//
 	//jpeg.Encode(toimg, m, &jpeg.Options{jpeg.DefaultQuality})
 
+	return Renderer{
+		Sprites:    LoadSpritemap(),
+		CanvasSize: image.Rect(0, 0, 400, 400),
+	}
 }

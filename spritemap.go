@@ -104,7 +104,6 @@ type Spritemap struct {
 
 type Sprite struct {
 	Dimensions Dimensions
-	// Image      image.Image
 }
 
 func (s *Spritemap) BlipInto(dst *image.RGBA, x int, y int, spriteName string) {
@@ -117,8 +116,6 @@ func (s *Spritemap) BlipInto(dst *image.RGBA, x int, y int, spriteName string) {
 
 	Debug(fmt.Sprintf("%+v - %+v\n", sprite.Dimensions, point))
 
-	// rect := image.Rect(point.X, point.Y, point.X + sprite.Dimensions.W, point.Y + sprite.Dimensions)
-
 	pointOnSpritesheet := image.Point{sprite.Dimensions.X, sprite.Dimensions.Y}
 
 	position := image.Rect(x, y, x+sprite.Dimensions.W, y+sprite.Dimensions.H)
@@ -130,15 +127,8 @@ func (s *Spritemap) Sprite(name string) *Sprite {
 	// TODO not found?
 	frame, found := s.Frames[name]
 	if found {
-		// rect := image.Rect(
-		// 	frame.Dimensions.X,
-		// 	frame.Dimensions.Y,
-		// 	frame.Dimensions.X+frame.Dimensions.W,
-		// 	frame.Dimensions.Y+frame.Dimensions.H,
-		// )
 		return &Sprite{
 			Dimensions: frame.Dimensions,
-			// Image:      s.spritesheet.SubImage(rect),
 		}
 	}
 	return nil
