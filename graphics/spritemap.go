@@ -18,39 +18,7 @@ const (
 
 	CeilingTop1 = "2.png"
 
-	CeilingRight1 = "4.png"
-	CeilingRight2 = "6.png"
-
-	CeilingBottom1 = "3.png"
-	CeilingBottom2 = "5.png"
-	CeilingBottom3 = "7.png"
-	CeilingBottom4 = "25.png"
-
-	Ceiling1  = "8.png"
-	Ceiling2  = "9.png"
-	Ceiling3  = "10.png"
-	Ceiling4  = "11.png"
-	Ceiling5  = "12.png"
-	Ceiling6  = "13.png"
-	Ceiling7  = "14.png"
-	Ceiling8  = "15.png"
-	Ceiling9  = "16.png"
-	Ceiling10 = "17.png"
-	Ceiling11 = "18.png"
-	Ceiling12 = "19.png"
-	Ceiling13 = "20.png"
-	Ceiling14 = "21.png"
-	Ceiling15 = "22.png"
-	Ceiling16 = "23.png"
-
 	CeilingAllSides = "24.png"
-
-	Wall1 = "60.png"
-	Wall2 = "61.png"
-	Wall3 = "63.png"
-	Wall4 = "64.png"
-	Wall5 = "65.png"
-	Wall6 = "66.png"
 
 	Stair1 = "67.png"
 
@@ -86,8 +54,6 @@ const (
 	FloorRight2  = "225.png"
 	FloorRight13 = "226.png"
 
-	FloorCenter1 = "259.png"
-
 	BannerRed1 = "290.png"
 
 	HeroUnarmed2 = "302.png"
@@ -97,6 +63,74 @@ const (
 
 	TableHorizontal = "75.png"
 )
+
+const (
+	TheUnknown = "23.png"
+)
+
+var Walls = []string{
+	"60.png",
+	"61.png",
+	"62.png",
+	"63.png",
+}
+
+var Ceilings = []string{
+	"8.png",
+	"9.png",
+	"10.png",
+	"11.png",
+	"12.png",
+	"13.png",
+	"14.png",
+	"15.png",
+	"16.png",
+	"17.png",
+	"18.png",
+	"19.png",
+	"20.png",
+	"21.png",
+	"22.png",
+	"23.png",
+}
+
+var CeilingLefts = []string{
+	"33.png",
+}
+
+var CeilingTops = []string{
+	"46.png",
+}
+
+var CeilingRights = []string{
+	"4.png",
+	"6.png",
+}
+
+var CeilingBottoms = []string{
+	"3.png",
+	"22.png",
+	"25.png",
+}
+
+var Floors = []string{
+	"271.png",
+	"271.png",
+	"271.png",
+	"271.png",
+	"272.png",
+	"272.png",
+	"272.png",
+	"272.png",
+	"273.png",
+	"274.png",
+	"275.png",
+	"276.png",
+	"277.png",
+	"278.png",
+}
+
+var CeilingBottomLefts = []string{CeilingBottomLeft1}
 
 type Spritemap struct {
 	SmallMonsters []*Frame
