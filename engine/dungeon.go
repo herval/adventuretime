@@ -1,9 +1,13 @@
-package main
+package engine
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/herval/adventuretime/util"
+)
 
 type Dungeon struct {
-	entrance *Room
+	Entrance *Room
 }
 
 // Generate dungeon... lazily
@@ -17,9 +21,9 @@ func NewDungeon() *Dungeon {
 	mainHall := RandomRoom(nil, youShallNotPass)
 	mainHall.details = "This is the entrance of the Dungeon."
 
-	Debug(fmt.Sprintf("Init dungeon: %s", mainHall))
+	util.Debug(fmt.Sprintf("Init dungeon: %s", mainHall))
 
 	return &Dungeon{
-		entrance: mainHall,
+		Entrance: mainHall,
 	}
 }

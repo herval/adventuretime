@@ -1,4 +1,4 @@
-package main
+package graphics
 
 import "testing"
 
@@ -18,11 +18,11 @@ func TestRenderer(t *testing.T) {
 
 	println(scene)
 
-	renderer := NewRenderer()
+	renderer := NewRenderer("../resources")
 
 	img := renderer.DrawScene(scene)
 
-	SaveImage(img, "new.png")
+	SaveImage(img, "../new.png")
 
 	// m := image.NewRGBA(image.Rect(0, 0, 400, 400))
 	// for i := 5; i < 20; i++ {

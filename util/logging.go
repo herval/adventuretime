@@ -1,4 +1,4 @@
-package main
+package util
 
 var DEBUGGING = false
 

@@ -1,4 +1,4 @@
-package main
+package graphics
 
 import (
 	"fmt"
@@ -7,6 +7,8 @@ import (
 	"image/png"
 	"os"
 	"path/filepath"
+
+	"github.com/herval/adventuretime/util"
 )
 
 const (
@@ -114,7 +116,7 @@ func (s *Spritemap) BlipInto(dst *image.RGBA, x int, y int, spriteName string) {
 		Y: y,
 	}
 
-	Debug(fmt.Sprintf("%+v - %+v\n", sprite.Dimensions, point))
+	util.Debug(fmt.Sprintf("%+v - %+v\n", sprite.Dimensions, point))
 
 	pointOnSpritesheet := image.Point{sprite.Dimensions.X, sprite.Dimensions.Y}
 
@@ -135,13 +137,13 @@ func (s *Spritemap) Sprite(name string) *Sprite {
 }
 
 // load the default spritemap file
-func LoadSpritemap() Spritemap {
+func LoadSpritemap(spritesPath string) Spritemap {
 	// load the map
 	loader := FramesLoader{}
-	data := loader.Parse("./sprites.json")
+	data := loader.Parse(spritesPath + "/sprites.json")
 
 	// load the image file
-	path, _ := filepath.Abs("./sprites.png")
+	path, _ := filepath.Abs(spritesPath + "/sprites.png")
 	sheet, _ := os.Open(path)
 	defer sheet.Close()
 	spritesheet, _ := png.Decode(sheet)

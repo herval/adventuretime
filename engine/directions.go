@@ -1,4 +1,4 @@
-package main
+package engine
 
 const (
 	NORTH = iota
@@ -36,7 +36,7 @@ func DirectionsMinus(direction Direction) []Direction {
 	return all
 }
 
-func DirectionToStr(direction Direction) string {
+func directionToStr(direction Direction) string {
 	switch direction {
 	case NORTH:
 		return "north"

@@ -1,4 +1,4 @@
-package main
+package graphics
 
 import (
 	"image"
@@ -22,13 +22,13 @@ func (r *Renderer) DrawScene(scene Scene) *image.RGBA {
 }
 
 func SaveImage(img *image.RGBA, destination string) {
-	dest, _ := os.Create("new.png")
+	dest, _ := os.Create(destination)
 	defer dest.Close()
 
 	png.Encode(dest, img)
 }
 
-func NewRenderer() Renderer {
+func NewRenderer(spritesPath string) Renderer {
 	//var floorTiles = []image.Rectangle{}
 	//for i := 0; i < 480; i++ {
 	//	floorTiles = append(
@@ -78,7 +78,7 @@ func NewRenderer() Renderer {
 	//jpeg.Encode(toimg, m, &jpeg.Options{jpeg.DefaultQuality})
 
 	return Renderer{
-		Sprites:    LoadSpritemap(),
+		Sprites:    LoadSpritemap(spritesPath),
 		CanvasSize: image.Rect(0, 0, 400, 400),
 	}
 }

@@ -4,10 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-)
 
-type Item struct {
-}
+	"github.com/herval/adventuretime/engine"
+)
 
 // Follow commands via replies
 // Search for the princess
@@ -47,13 +46,14 @@ type Item struct {
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 
-	controller := NewController()
+	parser := StandardParser{}
+	controller := engine.NewController()
 
-	for controller.state.player.hp > 0 {
-		fmt.Println(controller.state.player.currentLocation.Describe())
+	for controller.State.Player.Hp > 0 {
+		fmt.Println(controller.State.Player.CurrentLocation.Describe())
 
 		cmd, _ := reader.ReadString('\n')
-		_, op := controller.Execute(cmd)
+		_, op := controller.Execute(parser.ParseCommand(cmd))
 		fmt.Println(op.Describe())
 	}
 }

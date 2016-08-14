@@ -1,8 +1,10 @@
-package main
+package engine
 
 import (
 	"fmt"
 	"math/rand"
+
+	"github.com/herval/adventuretime/util"
 )
 
 // The Doors
@@ -16,11 +18,11 @@ type Door struct {
 // open a door and move unto the unkown
 func (self *Door) Open() *Room {
 	if self.to == nil {
-		Debug("No 'to' set! Generating...")
+		util.Debug("No 'to' set! Generating...")
 		self.to = RandomRoom(self.from, self)
-		Debug(fmt.Sprintf("New to: %s", self.to))
+		util.Debug(fmt.Sprintf("New to: %s", self.to))
 	} else {
-		Debug(fmt.Sprintf("Moving to existing room %s", self.to))
+		util.Debug(fmt.Sprintf("Moving to existing room %s", self.to))
 	}
 
 	return self.to
@@ -58,7 +60,7 @@ func generateDoors(previousRoom *Room, currentRoom *Room, enteringFrom *Door) []
 		}
 	}
 
-	Debug(fmt.Sprintf("Gen Doors: %s", doors))
+	util.Debug(fmt.Sprintf("Gen Doors: %s", doors))
 
 	return doors
 }

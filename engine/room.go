@@ -1,4 +1,6 @@
-package main
+package engine
+
+import "github.com/herval/adventuretime/util"
 
 // Rooms are a linked list pointing to up to 4 other rooms through doors
 type Room struct {
@@ -20,16 +22,16 @@ func (self *Room) Describe() string {
 	doors := len(self.doors)
 
 	if doors == 1 {
-		str += " There's a door facing " + DirectionToStr(self.doors[0].facing) + "."
+		str += " There's a door facing " + directionToStr(self.doors[0].facing) + "."
 	} else if doors > 1 {
 		str += " There are doors facing "
 		for i := 0; i < doors-1; i++ {
-			str += DirectionToStr(self.doors[i].facing)
+			str += directionToStr(self.doors[i].facing)
 			if i < doors-2 {
 				str += ", "
 			}
 		}
-		str += " and " + DirectionToStr(self.doors[doors-1].facing) + "."
+		str += " and " + directionToStr(self.doors[doors-1].facing) + "."
 	}
 
 	if len(self.details) > 0 {
@@ -41,7 +43,7 @@ func (self *Room) Describe() string {
 
 // entryDoor is the door from the *previous room* that leads to the new room
 func RandomRoom(comingFromRoom *Room, entryDoor *Door) *Room {
-	Debug("Building new room...")
+	util.Debug("Building new room...")
 
 	room := &Room{} // TODO add stuff
 

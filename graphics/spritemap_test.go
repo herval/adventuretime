@@ -1,13 +1,13 @@
-package main
+package graphics
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
 func TestSpritemap(t *testing.T) {
 
-	spritemap := LoadSpritemap()
+	spritemap := LoadSpritemap("../resources")
 
 	fmt.Printf("%+v", spritemap.SmallMonsters)
 

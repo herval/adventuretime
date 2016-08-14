@@ -1,4 +1,4 @@
-package main
+package engine
 
 // a command - eg walk, fight, talk, etc. Commands alter the game state and return a result
 type Command interface {
@@ -11,19 +11,19 @@ type Result interface {
 }
 
 type Ok struct {
-	description string
+	Description string
 }
 
 func (self *Ok) Describe() string {
-	return self.description
+	return self.Description
 }
 
 type Noop struct {
-	description string
+	Description string
 }
 
 func (self *Noop) Describe() string {
-	return self.description
+	return self.Description
 }
 
 // Eat/consume/drink
@@ -35,37 +35,37 @@ type UnknownCommand struct{}
 
 func (self *UnknownCommand) Execute(state *GameState) (*GameState, Result) {
 	return state, &Noop{
-		description: "Unknown command",
+		Description: "Unknown command",
 	}
 }
 
 type Move struct {
-	direction Direction
+	Direction Direction
 }
 
 func (self *Move) Execute(state *GameState) (returnedState *GameState, result Result) {
 	returnedState = state
 
-	if self.direction == UNKNOWN {
+	if self.Direction == UNKNOWN {
 		result = &Noop{
-			description: "Can't walk that way.",
+			Description: "Can't walk that way.",
 		}
 		return
 	}
 
-	player := state.player
-	currentRoom := state.player.currentLocation
+	player := state.Player
+	currentRoom := state.Player.CurrentLocation
 
 	for _, door := range currentRoom.doors {
-		if self.direction == door.facing {
+		if self.Direction == door.facing {
 			if door.locked {
 				result = &Noop{
-					description: "The door is locked.",
+					Description: "The door is locked.",
 				}
 			} else {
-				player.currentLocation = door.Open()
+				player.CurrentLocation = door.Open()
 				result = &Ok{
-					description: "You walked " + DirectionToStr(self.direction) + ".",
+					Description: "You walked " + directionToStr(self.Direction) + ".",
 				}
 			}
 			return
@@ -73,7 +73,7 @@ func (self *Move) Execute(state *GameState) (returnedState *GameState, result Re
 	}
 
 	result = &Noop{
-		description: "Can't walk that way.",
+		Description: "Can't walk that way.",
 	}
 	return
 }
