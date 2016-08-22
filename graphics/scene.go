@@ -13,7 +13,22 @@ const (
 	Chair              = "C"
 	Chest              = "Ü"
 	ChestOpen          = "U"
+	Table              = "T"
+	BigMonster         = "M"
+	SmallMonster       = "m"
 )
+
+var sprites = []string{
+	Hero,
+	Chair,
+	Chest,
+	ChestOpen,
+	Placeholder,
+	TableHorizontal,
+	Table,
+	BigMonster,
+	SmallMonster,
+}
 
 // a scene is an array of things, all stacked over each other:
 // ground, objects, decorations, etc
@@ -29,6 +44,10 @@ func NewScene(blipmap string) Scene {
 	}
 }
 
+// func (s *Scene) IsIndoors(row int, col int) {
+//     return s.IsTile(row, col, )
+// }
+
 func (s *Scene) IsTileOrOutOfBounds(row int, col int, kind string) bool {
 	return s.IsTile(row, col, kind) || row < 0 || row >= len(s.Tiles) || col < 0 || col >= len(s.Tiles[row])
 }
@@ -38,6 +57,15 @@ func (s *Scene) IsTile(row int, col int, kind string) bool {
 		return false
 	}
 	return s.Tiles[row][col] == kind
+}
+
+func (s *Scene) IsSprite(row int, col int) bool {
+	for _, kind := range sprites {
+		if s.IsTile(row, col, kind) {
+			return true
+		}
+	}
+	return false
 }
 
 func breakDown(blipmap string) [][]string {

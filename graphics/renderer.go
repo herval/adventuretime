@@ -16,13 +16,36 @@ type Renderer struct {
 	CanvasSize image.Rectangle
 }
 
-func (r *Renderer) DrawScene(scene Scene) *image.RGBA {
+func (r *Renderer) DrawScene(scene *Scene) *image.RGBA {
 	m := image.NewRGBA(r.CanvasSize)
 
 	// intentionally ineficient :)
+
+	// convert scene to an array of floor/background sprites
+	r.renderFloorAndWalls(scene, m)
+
+	// convert scene to an array of props & characters
+
 	// r.drawBackgrounds(m, stuff)
 	// r.drawFloors(m, stuff)
 	// r.drawStuff(m, stuff)
+
+	return m
+}
+
+func (r *Renderer) renderFloorAndWalls(scene *Scene, m *image.RGBA) {
+	floorMap := scene.Tiles
+	for row := 0; row < len(floorMap); row++ {
+		for col := 0; col < len(floorMap[row]); col++ {
+			if scene.IsSprite(row, col) {
+				floorMap[row][col] = RoomFloor
+			} else if scene.IsTile(row, col, WallWithDecoration) {
+				floorMap[row][col] = Wall
+			} else if scene.IsTile(row, col, Door) {
+				floorMap[row][col] = RoomFloor
+			}
+		}
+	}
 
 	for row := 0; row < len(scene.Tiles); row++ {
 		for col := 0; col < len(scene.Tiles[row]); col++ {
@@ -39,15 +62,15 @@ func (r *Renderer) DrawScene(scene Scene) *image.RGBA {
 				// 	sprite = random(CeilingLefts)
 				// } else
 				// wall down
-				if scene.IsTileOrOutOfBounds(row-1, col, Nothing) && scene.IsTile(row+1, col, Wall) {
-					sprite = random(CeilingBottoms)
-					// } else
-					// // wall above
-					// if scene.IsTile(row, col+1, Nothing) && scene.IsTile(row, col-1, Wall) {
+				// if scene.IsTileOrOutOfBounds(row-1, col, Nothing) && scene.IsTile(row+1, col, Wall) {
+				// 	sprite = random(CeilingBottoms)
+				// } else
+				// // wall above
+				// if scene.IsTile(row, col+1, Nothing) && scene.IsTile(row, col-1, Wall) {
 
-				} else {
-					sprite = TheUnknown
-				}
+				// } else {
+				sprite = TheUnknown
+				// }
 			} else if scene.IsTile(row, col, RoomFloor) {
 				sprite = random(Floors)
 			} else
@@ -55,15 +78,17 @@ func (r *Renderer) DrawScene(scene Scene) *image.RGBA {
 			// left/right/bottom "walls" are just empty space w/ shadows
 			if scene.IsTile(row, col, Wall) {
 				if scene.IsTile(row, col+1, RoomFloor) && scene.IsTile(row, col-1, Nothing) {
-					sprite = random(CeilingRights)
+					sprite = TheUnknown
 				} else if scene.IsTile(row, col-1, Nothing) && scene.IsTile(row, col+1, Wall) {
-					sprite = random(CeilingRights)
+					sprite = TheUnknown
 				} else if scene.IsTile(row, col-1, RoomFloor) && scene.IsTile(row, col+1, Nothing) {
-					sprite = random(CeilingLefts)
+					sprite = TheUnknown
 				} else if scene.IsTile(row, col+1, Nothing) && scene.IsTile(row, col-1, Wall) {
-					sprite = random(CeilingLefts)
+					sprite = TheUnknown
 				} else if scene.IsTile(row+1, col, Nothing) && scene.IsTile(row-1, col, RoomFloor) {
-					sprite = random(CeilingTops)
+					sprite = TheUnknown
+				} else if scene.IsTile(row-1, col, RoomFloor) && scene.IsTile(row+1, col, Wall) {
+					sprite = TheUnknown
 				} else {
 					sprite = random(Walls)
 				}
@@ -75,8 +100,6 @@ func (r *Renderer) DrawScene(scene Scene) *image.RGBA {
 		}
 
 	}
-
-	return m
 }
 
 // is a given floor/wall/ceiling/etc tile surrounded by more of the same kind?
