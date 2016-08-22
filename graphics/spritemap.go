@@ -29,12 +29,12 @@ const (
 	HeroUnarmed2 = "302.png"
 	HeroArmed2   = "303.png"
 
+	GoblinArmed = "327.png"
+
 	GorgonArmed = "326.png"
 
 	TableHorizontal = "75.png"
-)
 
-const (
 	TheUnknown = "23.png"
 )
 

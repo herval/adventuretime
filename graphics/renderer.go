@@ -20,41 +20,49 @@ func (r *Renderer) DrawScene(scene *Scene) *image.RGBA {
 	m := image.NewRGBA(r.CanvasSize)
 
 	// intentionally ineficient :)
-
-	// convert scene to an array of floor/background sprites
 	r.renderFloorAndWalls(scene, m)
-
-	// convert scene to an array of props & characters
-
-	// r.drawBackgrounds(m, stuff)
-	// r.drawFloors(m, stuff)
-	// r.drawStuff(m, stuff)
+	r.renderThings(scene, m)
 
 	return m
 }
 
-func (r *Renderer) renderFloorAndWalls(scene *Scene, m *image.RGBA) {
-	floorMap := scene.Tiles
-	for row := 0; row < len(floorMap); row++ {
-		for col := 0; col < len(floorMap[row]); col++ {
-			if scene.IsSprite(row, col) {
-				floorMap[row][col] = RoomFloor
-			} else if scene.IsTile(row, col, WallWithDecoration) {
-				floorMap[row][col] = Wall
-			} else if scene.IsTile(row, col, Door) {
-				floorMap[row][col] = RoomFloor
+func (r *Renderer) renderThings(scene *Scene, m *image.RGBA) {
+
+	for row := 0; row < len(scene.Tiles); row++ {
+		for col := 0; col < len(scene.Tiles[row]); col++ {
+			var sprite string
+
+			// TODO render shadows
+			// TODO blip larger sprites
+
+			if scene.IsTile(row, col, Nothing) {
+				// pew pew
+			} else {
+				if scene.IsTile(row, col, Hero) {
+					sprite = HeroArmed2
+				} else if scene.IsTile(row, col, WallWithDecoration) {
+					sprite = BannerRed1
+				} else if scene.IsTile(row, col, SmallMonster) {
+					sprite = GoblinArmed
+				}
+			}
+
+			if sprite != "" {
+				r.Sprites.BlipInto(m, col*SquareSize, row*SquareSize, sprite)
 			}
 		}
 	}
+}
 
-	for row := 0; row < len(floorMap); row++ {
-		for col := 0; col < len(floorMap[row]); col++ {
+func (r *Renderer) renderFloorAndWalls(scene *Scene, m *image.RGBA) {
+	for row := 0; row < len(scene.Tiles); row++ {
+		for col := 0; col < len(scene.Tiles[row]); col++ {
 			var sprite string
 
 			if scene.IsTile(row, col, Nothing) {
 				sprite = TheUnknown
 			} else {
-				surrounds := scene.Surroundings(row, col)
+				surrounds := scene.SurroundingScenario(row, col)
 
 				if scene.IsTile(row, col, RoomFloor) {
 					// TODO corners on intersections
@@ -107,7 +115,6 @@ func (r *Renderer) renderFloorAndWalls(scene *Scene, m *image.RGBA) {
 				r.Sprites.BlipInto(m, col*SquareSize, row*SquareSize, sprite)
 			}
 		}
-
 	}
 }
 
