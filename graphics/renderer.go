@@ -47,50 +47,59 @@ func (r *Renderer) renderFloorAndWalls(scene *Scene, m *image.RGBA) {
 		}
 	}
 
-	for row := 0; row < len(scene.Tiles); row++ {
-		for col := 0; col < len(scene.Tiles[row]); col++ {
+	for row := 0; row < len(floorMap); row++ {
+		for col := 0; col < len(floorMap[row]); col++ {
 			var sprite string
+
 			if scene.IsTile(row, col, Nothing) {
-
-				// wall to the right
-				// if scene.IsTile(row-1, col, Nothing) && scene.IsTile(row+1, col, Wall) {
-				// 	sprite = random(CeilingRights)
-
-				// } else
-				// // wall to the left
-				// if scene.IsTile(row+1, col, Nothing) && scene.IsTile(row-1, col, Wall) {
-				// 	sprite = random(CeilingLefts)
-				// } else
-				// wall down
-				// if scene.IsTileOrOutOfBounds(row-1, col, Nothing) && scene.IsTile(row+1, col, Wall) {
-				// 	sprite = random(CeilingBottoms)
-				// } else
-				// // wall above
-				// if scene.IsTile(row, col+1, Nothing) && scene.IsTile(row, col-1, Wall) {
-
-				// } else {
 				sprite = TheUnknown
-				// }
-			} else if scene.IsTile(row, col, RoomFloor) {
-				sprite = random(Floors)
-			} else
+			} else {
+				surrounds := scene.Surroundings(row, col)
 
-			// left/right/bottom "walls" are just empty space w/ shadows
-			if scene.IsTile(row, col, Wall) {
-				if scene.IsTile(row, col+1, RoomFloor) && scene.IsTile(row, col-1, Nothing) {
-					sprite = TheUnknown
-				} else if scene.IsTile(row, col-1, Nothing) && scene.IsTile(row, col+1, Wall) {
-					sprite = TheUnknown
-				} else if scene.IsTile(row, col-1, RoomFloor) && scene.IsTile(row, col+1, Nothing) {
-					sprite = TheUnknown
-				} else if scene.IsTile(row, col+1, Nothing) && scene.IsTile(row, col-1, Wall) {
-					sprite = TheUnknown
-				} else if scene.IsTile(row+1, col, Nothing) && scene.IsTile(row-1, col, RoomFloor) {
-					sprite = TheUnknown
-				} else if scene.IsTile(row-1, col, RoomFloor) && scene.IsTile(row+1, col, Wall) {
-					sprite = TheUnknown
-				} else {
-					sprite = random(Walls)
+				if scene.IsTile(row, col, RoomFloor) {
+					// TODO corners on intersections
+					if surrounds.right != RoomFloor && surrounds.left != RoomFloor && surrounds.top != RoomFloor && surrounds.bottom == RoomFloor { // cap up
+						sprite = random(FloorLeftRightTops)
+					} else if surrounds.right != RoomFloor && surrounds.left != RoomFloor && surrounds.top == RoomFloor && surrounds.bottom != RoomFloor { // cap up
+						sprite = random(FloorLeftRightBottoms)
+					} else if surrounds.right != RoomFloor && surrounds.left == RoomFloor && surrounds.top != RoomFloor && surrounds.bottom != RoomFloor { // cap up
+						sprite = random(FloorTopBottomRights)
+					} else if surrounds.right == RoomFloor && surrounds.left != RoomFloor && surrounds.top != RoomFloor && surrounds.bottom != RoomFloor { // cap up
+						sprite = random(FloorTopBottomLefts)
+					} else if surrounds.right == RoomFloor && surrounds.left == RoomFloor && surrounds.top != RoomFloor && surrounds.bottom != RoomFloor { // corridor sideways
+						sprite = random(FloorTopBottoms)
+					} else if surrounds.right != RoomFloor && surrounds.left != RoomFloor && surrounds.top == RoomFloor && surrounds.bottom == RoomFloor { // corridor up
+						sprite = random(FloorLeftRights)
+					} else if surrounds.top != RoomFloor && surrounds.left != RoomFloor && surrounds.right == RoomFloor && surrounds.bottom == RoomFloor { // top-left
+						sprite = random(FloorTopLefts)
+					} else if surrounds.top != RoomFloor && surrounds.right != RoomFloor && surrounds.left == RoomFloor && surrounds.bottom == RoomFloor { // top-right
+						sprite = random(FloorTopRights)
+					} else if surrounds.top != RoomFloor && surrounds.bottom == RoomFloor { // top
+						sprite = random(FloorTops)
+					} else if surrounds.left != RoomFloor && surrounds.right == RoomFloor { // left walls
+						sprite = random(FloorLefts)
+					} else if surrounds.right != RoomFloor && surrounds.left == RoomFloor { // right walls
+						sprite = random(FloorRights)
+					} else { // everything else
+						sprite = random(Floors)
+					}
+				} else if scene.IsTile(row, col, Wall) { // left/right/bottom "walls" are just empty space w/ shadows
+					// if surrounds.right == RoomFloor && surrounds.top == Nothing {
+					if surrounds.right == RoomFloor && surrounds.left == Nothing {
+						sprite = TheUnknown
+					} else if surrounds.left == Nothing && surrounds.right == Wall {
+						sprite = TheUnknown
+					} else if surrounds.left == RoomFloor && surrounds.right == Nothing {
+						sprite = TheUnknown
+					} else if surrounds.right == Nothing && surrounds.left == Wall {
+						sprite = TheUnknown
+					} else if surrounds.bottom == Nothing && surrounds.top == RoomFloor {
+						sprite = TheUnknown
+					} else if surrounds.top == RoomFloor && surrounds.bottom == Wall {
+						sprite = TheUnknown
+					} else {
+						sprite = random(Walls)
+					}
 				}
 			}
 
@@ -155,7 +164,7 @@ func (r *Renderer) drawBackgrounds(m *image.RGBA, stuff [][]string) {
 				// cornerType := cornerType(stuff, row, col, Nothing)
 				// switch cornerType {
 				// case center:
-				r.Sprites.BlipInto(m, col*SquareSize, row*SquareSize, random(Ceilings))
+				// r.Sprites.BlipInto(m, col*SquareSize, row*SquareSize, random(Ceilings))
 				// }
 			}
 		}
@@ -177,11 +186,11 @@ func (r *Renderer) drawStuff(m *image.RGBA, stuff [][]string) {
 }
 
 func random(source []string) string {
-	if len(source) > 1 {
-		return source[rand.Intn(len(source))]
-	} else {
-		return source[0]
-	}
+	// if len(source) > 1 {
+	return source[rand.Intn(len(source))]
+	// } else {
+	// return source[0]
+	// }
 }
 
 func SaveImage(img *image.RGBA, destination string) {

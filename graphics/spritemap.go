@@ -14,12 +14,6 @@ import (
 const (
 	SquareSize = 16
 
-	CeilingBottomLeft1 = "1.png"
-
-	CeilingTop1 = "2.png"
-
-	CeilingAllSides = "24.png"
-
 	Stair1 = "67.png"
 
 	LargeStairs1 = "68.png"
@@ -29,30 +23,6 @@ const (
 	Door3   = "71.png"
 	Door4   = "72.png"
 	Passage = "73.png"
-
-	FloorTopLeft1 = "211.png"
-
-	FloorTopRight1 = "212.png"
-
-	FloorBottomLeft1 = "213.png"
-
-	FloorBottomRight1 = "214.png"
-
-	FloorLeft1 = "215.png"
-	FloorLeft2 = "216.png"
-	FloorLeft3 = "217.png"
-
-	FloorTop1 = "218.png"
-	FloorTop2 = "219.png"
-	FloorTop3 = "220.png"
-
-	FloorBottom1 = "221.png"
-	FloorBottom2 = "222.png"
-	FloorBottom3 = "223.png"
-
-	FloorRight1  = "224.png"
-	FloorRight2  = "225.png"
-	FloorRight13 = "226.png"
 
 	BannerRed1 = "290.png"
 
@@ -75,42 +45,74 @@ var Walls = []string{
 	"63.png",
 }
 
-var Ceilings = []string{
-	"8.png",
-	"9.png",
-	"10.png",
-	"11.png",
-	"12.png",
-	"13.png",
-	"14.png",
-	"15.png",
-	"16.png",
-	"17.png",
-	"18.png",
-	"19.png",
-	"20.png",
-	"21.png",
-	"22.png",
-	"23.png",
+var FloorTopLefts = []string{
+	"211.png",
+	"270.png",
 }
 
-var CeilingLefts = []string{
-	"33.png",
+var FloorTopRights = []string{
+	"212.png",
+	"269.png",
 }
 
-var CeilingTops = []string{
-	"46.png",
+var FloorBottomRights = []string{
+	"214.png",
+	"267.png",
 }
 
-var CeilingRights = []string{
-	"4.png",
-	"6.png",
+var FloorLeftRights = []string{
+	"233.png",
+	"234.png",
 }
 
-var CeilingBottoms = []string{
-	"3.png",
-	"22.png",
-	"25.png",
+var FloorTopBottoms = []string{
+	"231.png",
+	"232.png",
+}
+
+var FloorBottomLefts = []string{
+	"268.png",
+	"213.png",
+}
+
+var FloorLeftRightTops = []string{
+	"228.png",
+}
+
+var FloorLeftRightBottoms = []string{
+	"266.png",
+}
+
+var FloorTopBottomRights = []string{
+	"229.png",
+}
+
+var FloorTopBottomLefts = []string{
+	"227.png",
+}
+
+var FloorBottoms = []string{
+	"221.png",
+	"222.png",
+	"223.png",
+}
+
+var FloorTops = []string{
+	"220.png",
+	"219.png",
+	"218.png",
+}
+
+var FloorLefts = []string{
+	"215.png",
+	"216.png",
+	"217.png",
+}
+
+var FloorRights = []string{
+	"225.png",
+	"226.png",
+	"224.png",
 }
 
 var Floors = []string{
@@ -129,8 +131,6 @@ var Floors = []string{
 	"277.png",
 	"278.png",
 }
-
-var CeilingBottomLefts = []string{CeilingBottomLeft1}
 
 type Spritemap struct {
 	SmallMonsters []*Frame
