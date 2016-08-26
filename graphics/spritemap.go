@@ -97,6 +97,8 @@ var FloorBottoms = []string{
 	"223.png",
 }
 
+var Shadow = "804.png"
+
 var FloorTops = []string{
 	"220.png",
 	"219.png",
@@ -138,10 +140,6 @@ type Spritemap struct {
 	Spritesheet   *image.RGBA
 }
 
-type Sprite struct {
-	Dimensions Dimensions
-}
-
 func (s *Spritemap) BlipInto(dst *image.RGBA, x int, y int, spriteName string) {
 	sprite := s.Sprite(spriteName)
 
@@ -159,15 +157,10 @@ func (s *Spritemap) BlipInto(dst *image.RGBA, x int, y int, spriteName string) {
 	draw.Draw(dst, position, s.Spritesheet, pointOnSpritesheet, draw.Over)
 }
 
-func (s *Spritemap) Sprite(name string) *Sprite {
+func (s *Spritemap) Sprite(name string) Frame {
 	// TODO not found?
-	frame, found := s.Frames[name]
-	if found {
-		return &Sprite{
-			Dimensions: frame.Dimensions,
-		}
-	}
-	return nil
+	frame, _ := s.Frames[name]
+	return frame
 }
 
 // load the default spritemap file

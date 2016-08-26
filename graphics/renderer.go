@@ -48,6 +48,7 @@ func (r *Renderer) renderThings(scene *Scene, m *image.RGBA) {
 			}
 
 			if sprite != "" {
+				r.Sprites.BlipInto(m, col*SquareSize, row*SquareSize+(SquareSize/2), Shadow)
 				r.Sprites.BlipInto(m, col*SquareSize, row*SquareSize, sprite)
 			}
 		}
