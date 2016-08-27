@@ -1,55 +1,51 @@
-package main
+package engine
 
-import (
-	"strings"
-
-	"github.com/herval/adventuretime/engine"
-)
+import "strings"
 
 type CommandParser interface {
-	ParseCommand(cmd string) engine.Command
+	ParseCommand(cmd string) Command
 }
 
 // parse command line strings and converts them to valid commands
 type StandardParser struct {
 }
 
-func (parser *StandardParser) ParseCommand(cmd string) engine.Command {
+func (parser *StandardParser) ParseCommand(cmd string) Command {
 	return parseCommand(cmd)
 }
 
-func parseDirection(dir string) engine.Direction {
+func parseDirection(dir string) Direction {
 	if dir == "east" || dir == "left" {
-		return engine.EAST
+		return EAST
 	}
 	if dir == "west" || dir == "right" {
-		return engine.WEST
+		return WEST
 	}
 	if dir == "forward" || dir == "up" || dir == "north" {
-		return engine.NORTH
+		return NORTH
 	}
 	if dir == "back" || dir == "down" || dir == "south" {
-		return engine.SOUTH
+		return SOUTH
 	}
-	return engine.UNKNOWN
+	return UNKNOWN
 }
 
-func parseCommand(cmd string) engine.Command {
+func parseCommand(cmd string) Command {
 	tokens := strings.Split(cmd, " ")
 	if len(tokens) < 2 {
-		return &engine.UnknownCommand{}
+		return &UnknownCommand{}
 	}
 
 	invisibles := " \n\r\t"
 	op := strings.ToLower(strings.Trim(tokens[0], invisibles))
 	if op == "walk" || op == "move" || op == "go" {
 		dir := parseDirection(strings.ToLower(strings.Trim(tokens[1], invisibles)))
-		if dir != engine.UNKNOWN {
-			return &engine.Move{
+		if dir != UNKNOWN {
+			return &Move{
 				Direction: dir,
 			}
 		}
 	}
 
-	return &engine.UnknownCommand{}
+	return &UnknownCommand{}
 }

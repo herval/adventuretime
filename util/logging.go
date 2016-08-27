@@ -1,6 +1,6 @@
 package util
 
-var DEBUGGING = false
+var DEBUGGING = true
 
 func Debug(msg string) {
 	if DEBUGGING {

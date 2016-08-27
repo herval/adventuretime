@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/herval/adventuretime/engine"
+	"github.com/herval/adventuretime/twitter"
 )
 
 // Follow commands via replies
@@ -44,14 +46,55 @@ import (
 // Dungeon - build in memory
 
 func main() {
-	reader := bufio.NewReader(os.Stdin)
+	mode := os.Getenv("MODE")
+	if mode == "twitter" {
+		twitterGame()
+	} else {
+		commandLineGame()
+	}
+}
 
-	parser := StandardParser{}
+func twitterGame() {
+	started := time.Now()
+
+	api := twitter.NewApi(
+		os.Getenv("TWITTER_CONSUMER_KEY"),
+		os.Getenv("TWITTER_CONSUMER_SECRET"),
+		os.Getenv("TWITTER_ACCESS_TOKEN"),
+		os.Getenv("TWITTER_TOKEN_SECRET"),
+	)
+	mentions := api.MentionsStream(started)
+
+	parser := twitter.TweetParser{
+		Name: os.Getenv("TWITTER_SCREEN_NAME"),
+	}
+	controller := engine.NewController()
+
+	api.Post(controller.State.Describe())
+
+	for {
+		mention := <-mentions
+
+		_, op := controller.Execute(parser.ParseCommand(mention.Text))
+
+		api.Post(fmt.Sprintf("@%s %s", mention.User.ScreenName, op.Describe()))
+
+		switch op.(type) {
+		case *engine.Noop: // do nothing
+			fmt.Println("Invalid command: ", mention.Text)
+		default:
+			api.Post(controller.State.Describe())
+		}
+	}
+}
+
+func commandLineGame() {
+	reader := bufio.NewReader(os.Stdin)
+	parser := engine.StandardParser{}
 	controller := engine.NewController()
 
 	for controller.State.Player.Hp > 0 {
-		fmt.Println(controller.State.Player.CurrentLocation.Describe())
-
+		fmt.Println(controller.State.Describe())
 		cmd, _ := reader.ReadString('\n')
 		_, op := controller.Execute(parser.ParseCommand(cmd))
 		fmt.Println(op.Describe())

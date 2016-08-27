@@ -19,3 +19,7 @@ func NewGame() *GameState {
 		Dungeon: dungeon,
 	}
 }
+
+func (self *GameState) Describe() string {
+	return self.Player.CurrentLocation.Describe()
+}
