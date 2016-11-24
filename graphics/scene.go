@@ -18,19 +18,6 @@ const (
 	SmallMonster       = "m"
 )
 
-var sprites = []string{
-	Hero,
-	Chair,
-	Chest,
-	ChestOpen,
-	Door,
-	Placeholder,
-	TableHorizontal,
-	Table,
-	BigMonster,
-	SmallMonster,
-}
-
 // a scene is an array of things, all stacked over each other:
 // ground, objects, decorations, etc.
 type Scene struct {
@@ -65,7 +52,7 @@ func NewScene(blipmap string) Scene {
 				floorMap[row][col] = RoomFloor
 
 			default:
-				if isSprite(tiles[row][col]) {
+				if tiles[row][col] != Nothing && tiles[row][col] != "" {
 					floorMap[row][col] = RoomFloor // no sprites live in the void
 					sprites[row][col] = tiles[row][col]
 				}
@@ -83,72 +70,75 @@ func NewScene(blipmap string) Scene {
 // convert the scene "markers" to actual sprites
 // Incredible typing & crazy complex, I know. :-|
 func toSprites(tiles [][]string, floorMap [][]string, wallsMap [][]string) [][]string {
-	res := make([][]string, len(tiles))
-	for i, _ := range tiles {
-		res[i] = make([]string, len(tiles[0]))
-	}
+	res := empty(tiles, "")
 
 	for row := 0; row < len(tiles); row++ {
 		for col := 0; col < len(tiles[row]); col++ {
+			isA := func(kind string) bool {
+				return isTile(tiles, row, col, kind)
+			}
+
 			sprite := ""
 
-			if isTile(tiles, row, col, Nothing) {
+			if isA(Nothing) {
 				sprite = TheUnknown
-			} else if isTile(tiles, row, col, RoomFloor) {
+			} else if isA(RoomFloor) {
 				surrounds := surroundingScenario(floorMap, row, col)
 
 				// TODO corners on intersections
-				if surrounds.right != RoomFloor && surrounds.left != RoomFloor && surrounds.top != RoomFloor && surrounds.bottom == RoomFloor { // cap up
+				switch {
+				case surrounds.right != RoomFloor && surrounds.left != RoomFloor && surrounds.top != RoomFloor && surrounds.bottom == RoomFloor: // cap up
 					sprite = random(FloorLeftRightTops)
-				} else if surrounds.right != RoomFloor && surrounds.left != RoomFloor && surrounds.top == RoomFloor && surrounds.bottom != RoomFloor { // cap up
+				case surrounds.right != RoomFloor && surrounds.left != RoomFloor && surrounds.top == RoomFloor && surrounds.bottom != RoomFloor: // cap up
 					sprite = random(FloorLeftRightBottoms)
-				} else if surrounds.right != RoomFloor && surrounds.left == RoomFloor && surrounds.top != RoomFloor && surrounds.bottom != RoomFloor { // cap up
+				case surrounds.right != RoomFloor && surrounds.left == RoomFloor && surrounds.top != RoomFloor && surrounds.bottom != RoomFloor: // cap up
 					sprite = random(FloorTopBottomRights)
-				} else if surrounds.right == RoomFloor && surrounds.left != RoomFloor && surrounds.top != RoomFloor && surrounds.bottom != RoomFloor { // cap up
+				case surrounds.right == RoomFloor && surrounds.left != RoomFloor && surrounds.top != RoomFloor && surrounds.bottom != RoomFloor: // cap up
 					sprite = random(FloorTopBottomLefts)
-				} else if surrounds.right == RoomFloor && surrounds.left == RoomFloor && surrounds.top != RoomFloor && surrounds.bottom != RoomFloor { // corridor sideways
+				case surrounds.right == RoomFloor && surrounds.left == RoomFloor && surrounds.top != RoomFloor && surrounds.bottom != RoomFloor: // corridor sideways
 					sprite = random(FloorTopBottoms)
-				} else if surrounds.right != RoomFloor && surrounds.left != RoomFloor && surrounds.top == RoomFloor && surrounds.bottom == RoomFloor { // corridor up
+				case surrounds.right != RoomFloor && surrounds.left != RoomFloor && surrounds.top == RoomFloor && surrounds.bottom == RoomFloor: // corridor up
 					sprite = random(FloorLeftRights)
-				} else if surrounds.top != RoomFloor && surrounds.left != RoomFloor && surrounds.right == RoomFloor && surrounds.bottom == RoomFloor { // top-left
+				case surrounds.top != RoomFloor && surrounds.left != RoomFloor && surrounds.right == RoomFloor && surrounds.bottom == RoomFloor: // top-left
 					sprite = random(FloorTopLefts)
-				} else if surrounds.top != RoomFloor && surrounds.right != RoomFloor && surrounds.left == RoomFloor && surrounds.bottom == RoomFloor { // top-right
+				case surrounds.top != RoomFloor && surrounds.right != RoomFloor && surrounds.left == RoomFloor && surrounds.bottom == RoomFloor: // top-right
 					sprite = random(FloorTopRights)
-				} else if surrounds.top != RoomFloor && surrounds.bottom == RoomFloor { // top
+				case surrounds.top != RoomFloor && surrounds.bottom == RoomFloor: // top
 					sprite = random(FloorTops)
-				} else if surrounds.left != RoomFloor && surrounds.right == RoomFloor { // left walls
+				case surrounds.left != RoomFloor && surrounds.right == RoomFloor: // left walls
 					sprite = random(FloorLefts)
-				} else if surrounds.right != RoomFloor && surrounds.left == RoomFloor { // right walls
+				case surrounds.right != RoomFloor && surrounds.left == RoomFloor: // right walls
 					sprite = random(FloorRights)
-				} else { // everything else
+				default: // everything else
 					sprite = random(Floors)
 				}
-			} else if isTile(tiles, row, col, Wall) { // left/right/bottom "walls" are just empty space w/ shadows
+			} else if isA(Wall) { // left/right/bottom "walls" are just empty space w/ shadows
 				floorSurrounds := surroundingScenario(floorMap, row, col)
 				wallSurrounds := surroundingScenario(wallsMap, row, col)
 
-				if floorSurrounds.right == RoomFloor && floorSurrounds.left == Nothing {
+				switch {
+				case floorSurrounds.right == RoomFloor && floorSurrounds.left == Nothing:
 					sprite = TheUnknown
-				} else if floorSurrounds.left == Nothing && wallSurrounds.right == Wall {
+				case  floorSurrounds.left == Nothing && wallSurrounds.right == Wall:
 					sprite = TheUnknown
-				} else if floorSurrounds.left == RoomFloor && floorSurrounds.right == Nothing {
+				case floorSurrounds.left == RoomFloor && floorSurrounds.right == Nothing:
 					sprite = TheUnknown
-				} else if floorSurrounds.right == Nothing && wallSurrounds.left == Wall {
+				case floorSurrounds.right == Nothing && wallSurrounds.left == Wall:
 					sprite = TheUnknown
-				} else if floorSurrounds.bottom == Nothing && floorSurrounds.top == RoomFloor {
+				case floorSurrounds.bottom == Nothing && floorSurrounds.top == RoomFloor:
 					sprite = TheUnknown
-				} else if floorSurrounds.top == RoomFloor && wallSurrounds.bottom == Wall {
+				case floorSurrounds.top == RoomFloor && wallSurrounds.bottom == Wall:
 					sprite = TheUnknown
-				} else {
+				 default:
 					sprite = random(Walls)
 				}
-			} else if isTile(tiles, row, col, WallWithDecoration) {
+			} else if isA(WallWithDecoration) {
 				sprite = BannerRed1
-			} else if isTile(tiles, row, col, Hero) {
+			} else if isA(Hero) {
 				sprite = HeroArmed2
-			} else if isTile(tiles, row, col, BigMonster) {
+			} else if isA(BigMonster) {
 				sprite = GorgonArmed
-			} else if isTile(tiles, row, col, SmallMonster) {
+			} else if isA(SmallMonster) {
 				sprite = GoblinArmed
 			}
 
@@ -174,35 +164,23 @@ func empty(array [][]string, defaultStr string) [][]string {
 }
 
 // AREUFREAKINKIDDINME.
-func dup(array [][]string) [][]string {
-	b := make([][]string, len(array))
-	for i := range b {
-		b[i] = make([]string, len(array[i]))
-		for j := range b[i] {
-			b[i][j] = array[i][j]
-		}
-	}
+//func dup(array [][]string) [][]string {
+//	b := make([][]string, len(array))
+//	for i := range b {
+//		b[i] = make([]string, len(array[i]))
+//		for j := range b[i] {
+//			b[i][j] = array[i][j]
+//		}
+//	}
+//
+//	return b
+//}
 
-	return b
-}
-
-// func (s *Scene) IsIndoors(row int, col int) {
-//     return s.IsTile(row, col, )
-// }
-
-// func (s *Scene) IsTileOrOutOfBounds(row int, col int, kind string) bool {
-// 	return s.IsTile(row, col, kind) || row < 0 || row >= len(s.Tiles) || col < 0 || col >= len(s.Tiles[row])
-// }
-
-// is the given tile a wall or a floor?
+// is the given tile of a given kind
 func isTile(tiles [][]string, row int, col int, kind string) bool {
 	if row < 0 || row >= len(tiles) || col < 0 || col >= len(tiles[row]) {
 		return false
 	}
-
-	//if kind == Wall || kind == RoomFloor {
-	//	return s.floorMap[row][col] == kind
-	//}
 
 	return tiles[row][col] == kind
 }
@@ -237,15 +215,6 @@ func surroundingScenario(floorMap [][]string, row int, col int) Surroundings {
 	}
 
 	return res
-}
-
-func isSprite(kind string) bool {
-	for _, spriteKind := range sprites {
-		if kind == spriteKind {
-			return true
-		}
-	}
-	return false
 }
 
 func breakDown(blipmap string) [][]string {
