@@ -45,6 +45,10 @@ import (
 
 // Dungeon - build in memory
 
+// each room has many things
+// each thing can have many interactions
+// each interaction changes tate from a to a'
+
 func main() {
 	mode := os.Getenv("MODE")
 	if mode == "twitter" {
@@ -95,8 +99,10 @@ func commandLineGame() {
 
 	for controller.State.Player.Hp > 0 {
 		fmt.Println(controller.State.Describe())
+		fmt.Print("> ")
+
 		cmd, _ := reader.ReadString('\n')
 		_, op := controller.Execute(parser.ParseCommand(cmd))
-		fmt.Println(op.Describe())
+		fmt.Print(fmt.Sprintf("\n%s\n\n", op.Describe()))
 	}
 }

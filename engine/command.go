@@ -35,7 +35,7 @@ type UnknownCommand struct{}
 
 func (self *UnknownCommand) Execute(state *GameState) (*GameState, Result) {
 	return state, &Noop{
-		Description: "Unknown command",
+		Description: "Unknown command - type 'help' or enter a valid command.",
 	}
 }
 
