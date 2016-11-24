@@ -23,6 +23,7 @@ var sprites = []string{
 	Chair,
 	Chest,
 	ChestOpen,
+	Door,
 	Placeholder,
 	TableHorizontal,
 	Table,
@@ -31,43 +32,145 @@ var sprites = []string{
 }
 
 // a scene is an array of things, all stacked over each other:
-// ground, objects, decorations, etc
+// ground, objects, decorations, etc.
 type Scene struct {
-	Tiles     [][]string // [y][x] aka [row][col]
-	floorMap  [][]string
-	spriteMap [][]string
-	Blipmap   string
+	//Tiles     [][]string // [y][x] aka [row][col]
+	FloorMap  [][]string // a list of actual *sprites* for floors and empty spaces(constants from spritemap)
+	WallsMap  [][]string // a list of actual *sprites* for walls (constants from spritemap)
+	SpriteMap [][]string // a list of actual *sprites* for things that move + decorations (constants from spritemap)
 }
 
 func NewScene(blipmap string) Scene {
 	tiles := breakDown(blipmap)
 
 	// save a mapping only with floor tiles and one with renderable sprites
-	floorMap := dup(tiles)
-	sprites := dup(tiles)
+	floorMap := empty(tiles, Nothing)
+	sprites := empty(tiles, "")
+	wallsMap := empty(tiles, "")
 
+	// convert the scene markers to actual sprites
 	for row := 0; row < len(tiles); row++ {
 		for col := 0; col < len(tiles[row]); col++ {
-			if isSprite(tiles[row][col]) {
-				floorMap[row][col] = RoomFloor
-			} else if tiles[row][col] == WallWithDecoration {
+			switch tiles[row][col] {
+			case WallWithDecoration:
+				wallsMap[row][col] = Wall // a decoration must go on a wall
 				floorMap[row][col] = Wall
-			} else if tiles[row][col] == Door {
-				floorMap[row][col] = RoomFloor
-			}
+				sprites[row][col] = WallWithDecoration
 
-			if !isSprite(tiles[row][col]) && tiles[row][col] != WallWithDecoration {
-				sprites[row][col] = Nothing
+			case Wall:
+				wallsMap[row][col] = Wall
+				floorMap[row][col] = Wall
+
+			case RoomFloor:
+				floorMap[row][col] = RoomFloor
+
+			default:
+				if isSprite(tiles[row][col]) {
+					floorMap[row][col] = RoomFloor // no sprites live in the void
+					sprites[row][col] = tiles[row][col]
+				}
 			}
 		}
 	}
 
 	return Scene{
-		Tiles:     tiles,
-		Blipmap:   blipmap,
-		floorMap:  floorMap,
-		spriteMap: sprites,
+		FloorMap:  toSprites(floorMap, floorMap, wallsMap),
+		WallsMap:  toSprites(wallsMap, floorMap, wallsMap),
+		SpriteMap: toSprites(sprites, floorMap, wallsMap),
 	}
+}
+
+// convert the scene "markers" to actual sprites
+// Incredible typing & crazy complex, I know. :-|
+func toSprites(tiles [][]string, floorMap [][]string, wallsMap [][]string) [][]string {
+	res := make([][]string, len(tiles))
+	for i, _ := range tiles {
+		res[i] = make([]string, len(tiles[0]))
+	}
+
+	for row := 0; row < len(tiles); row++ {
+		for col := 0; col < len(tiles[row]); col++ {
+			sprite := ""
+
+			if isTile(tiles, row, col, Nothing) {
+				sprite = TheUnknown
+			} else if isTile(tiles, row, col, RoomFloor) {
+				surrounds := surroundingScenario(floorMap, row, col)
+
+				// TODO corners on intersections
+				if surrounds.right != RoomFloor && surrounds.left != RoomFloor && surrounds.top != RoomFloor && surrounds.bottom == RoomFloor { // cap up
+					sprite = random(FloorLeftRightTops)
+				} else if surrounds.right != RoomFloor && surrounds.left != RoomFloor && surrounds.top == RoomFloor && surrounds.bottom != RoomFloor { // cap up
+					sprite = random(FloorLeftRightBottoms)
+				} else if surrounds.right != RoomFloor && surrounds.left == RoomFloor && surrounds.top != RoomFloor && surrounds.bottom != RoomFloor { // cap up
+					sprite = random(FloorTopBottomRights)
+				} else if surrounds.right == RoomFloor && surrounds.left != RoomFloor && surrounds.top != RoomFloor && surrounds.bottom != RoomFloor { // cap up
+					sprite = random(FloorTopBottomLefts)
+				} else if surrounds.right == RoomFloor && surrounds.left == RoomFloor && surrounds.top != RoomFloor && surrounds.bottom != RoomFloor { // corridor sideways
+					sprite = random(FloorTopBottoms)
+				} else if surrounds.right != RoomFloor && surrounds.left != RoomFloor && surrounds.top == RoomFloor && surrounds.bottom == RoomFloor { // corridor up
+					sprite = random(FloorLeftRights)
+				} else if surrounds.top != RoomFloor && surrounds.left != RoomFloor && surrounds.right == RoomFloor && surrounds.bottom == RoomFloor { // top-left
+					sprite = random(FloorTopLefts)
+				} else if surrounds.top != RoomFloor && surrounds.right != RoomFloor && surrounds.left == RoomFloor && surrounds.bottom == RoomFloor { // top-right
+					sprite = random(FloorTopRights)
+				} else if surrounds.top != RoomFloor && surrounds.bottom == RoomFloor { // top
+					sprite = random(FloorTops)
+				} else if surrounds.left != RoomFloor && surrounds.right == RoomFloor { // left walls
+					sprite = random(FloorLefts)
+				} else if surrounds.right != RoomFloor && surrounds.left == RoomFloor { // right walls
+					sprite = random(FloorRights)
+				} else { // everything else
+					sprite = random(Floors)
+				}
+			} else if isTile(tiles, row, col, Wall) { // left/right/bottom "walls" are just empty space w/ shadows
+				floorSurrounds := surroundingScenario(floorMap, row, col)
+				wallSurrounds := surroundingScenario(wallsMap, row, col)
+
+				if floorSurrounds.right == RoomFloor && floorSurrounds.left == Nothing {
+					sprite = TheUnknown
+				} else if floorSurrounds.left == Nothing && wallSurrounds.right == Wall {
+					sprite = TheUnknown
+				} else if floorSurrounds.left == RoomFloor && floorSurrounds.right == Nothing {
+					sprite = TheUnknown
+				} else if floorSurrounds.right == Nothing && wallSurrounds.left == Wall {
+					sprite = TheUnknown
+				} else if floorSurrounds.bottom == Nothing && floorSurrounds.top == RoomFloor {
+					sprite = TheUnknown
+				} else if floorSurrounds.top == RoomFloor && wallSurrounds.bottom == Wall {
+					sprite = TheUnknown
+				} else {
+					sprite = random(Walls)
+				}
+			} else if isTile(tiles, row, col, WallWithDecoration) {
+				sprite = BannerRed1
+			} else if isTile(tiles, row, col, Hero) {
+				sprite = HeroArmed2
+			} else if isTile(tiles, row, col, BigMonster) {
+				sprite = GorgonArmed
+			} else if isTile(tiles, row, col, SmallMonster) {
+				sprite = GoblinArmed
+			}
+
+			if sprite != "" {
+				res[row][col] = sprite
+			}
+		}
+	}
+
+	return res
+}
+
+// empty array, same size
+func empty(array [][]string, defaultStr string) [][]string {
+	res := make([][]string, len(array))
+	for i, _ := range res {
+		res[i] = make([]string, len(array[i]))
+		for j, _ := range res[i] {
+			res[i][j] = defaultStr
+		}
+	}
+	return res
 }
 
 // AREUFREAKINKIDDINME.
@@ -91,16 +194,17 @@ func dup(array [][]string) [][]string {
 // 	return s.IsTile(row, col, kind) || row < 0 || row >= len(s.Tiles) || col < 0 || col >= len(s.Tiles[row])
 // }
 
-func (s *Scene) IsTile(row int, col int, kind string) bool {
-	if row < 0 || row >= len(s.Tiles) || col < 0 || col >= len(s.Tiles[row]) {
+// is the given tile a wall or a floor?
+func isTile(tiles [][]string, row int, col int, kind string) bool {
+	if row < 0 || row >= len(tiles) || col < 0 || col >= len(tiles[row]) {
 		return false
 	}
 
-	if kind == Wall || kind == RoomFloor {
-		return s.floorMap[row][col] == kind
-	}
+	//if kind == Wall || kind == RoomFloor {
+	//	return s.floorMap[row][col] == kind
+	//}
 
-	return s.Tiles[row][col] == kind
+	return tiles[row][col] == kind
 }
 
 type Surroundings struct {
@@ -111,7 +215,7 @@ type Surroundings struct {
 }
 
 // top/left/right/bottom
-func (s *Scene) SurroundingScenario(row int, col int) Surroundings {
+func surroundingScenario(floorMap [][]string, row int, col int) Surroundings {
 	res := Surroundings{
 		top:    Nothing,
 		left:   Nothing,
@@ -120,16 +224,16 @@ func (s *Scene) SurroundingScenario(row int, col int) Surroundings {
 	}
 
 	if row > 0 {
-		res.top = s.floorMap[row-1][col]
+		res.top = floorMap[row-1][col]
 	}
-	if row < len(s.floorMap)-1 {
-		res.bottom = s.floorMap[row+1][col]
+	if row < len(floorMap)-1 {
+		res.bottom = floorMap[row+1][col]
 	}
-	if col < len(s.floorMap[row])-1 {
-		res.right = s.floorMap[row][col+1]
+	if col < len(floorMap[row])-1 {
+		res.right = floorMap[row][col+1]
 	}
 	if col > 0 {
-		res.left = s.floorMap[row][col-1]
+		res.left = floorMap[row][col-1]
 	}
 
 	return res

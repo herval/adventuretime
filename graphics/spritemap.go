@@ -39,6 +39,8 @@ const (
 
 	SmallShadow = "804.png"
 	LargeShadow = "805.png"
+
+	Fire = "802.png"
 )
 
 var Walls = []string{
@@ -185,6 +187,8 @@ func (s *Spritemap) shadowFor(name string) *Dimensions {
 	if name == HeroArmed2 {
 		return s.frameFor(SmallShadow)
 	} else if name == GoblinArmed {
+		return s.frameFor(SmallShadow)
+	} else if name == GorgonArmed {
 		return s.frameFor(SmallShadow)
 	}
 
