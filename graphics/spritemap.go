@@ -18,10 +18,6 @@ const (
 
 	LargeStairs1 = "68.png"
 
-	Door1   = "69.png"
-	Door2   = "70.png"
-	Door3   = "71.png"
-	Door4   = "72.png"
 	Passage = "73.png"
 
 	BannerRed1 = "290.png"
@@ -35,6 +31,8 @@ const (
 
 	TableHorizontal = "75.png"
 
+	TableVertical = "74.png"
+
 	TheUnknown = "23.png"
 
 	SmallShadow = "804.png"
@@ -42,6 +40,13 @@ const (
 
 	Fire = "802.png"
 )
+
+var DoorsFrontFacing = []string{
+	"69.png",
+	"70.png",
+	"71.png",
+	"72.png",
+}
 
 var Walls = []string{
 	"60.png",
@@ -184,12 +189,11 @@ func (s *Spritemap) BlipInto(dst *image.RGBA, x int, y int, sprite string) {
 }
 
 func (s *Spritemap) shadowFor(name string) *Dimensions {
-	if name == HeroArmed2 {
+	switch name {
+	case HeroArmed2, GoblinArmed, GorgonArmed:
 		return s.frameFor(SmallShadow)
-	} else if name == GoblinArmed {
-		return s.frameFor(SmallShadow)
-	} else if name == GorgonArmed {
-		return s.frameFor(SmallShadow)
+	case TableHorizontal, TableVertical:
+		return s.frameFor(LargeShadow)
 	}
 
 	return nil

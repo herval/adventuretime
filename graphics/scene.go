@@ -20,8 +20,8 @@ const (
 
 // a scene is an array of things, all stacked over each other:
 // ground, objects, decorations, etc.
+// data is in [y][x] aka [row][col]
 type Scene struct {
-	//Tiles     [][]string // [y][x] aka [row][col]
 	FloorMap  [][]string // a list of actual *sprites* for floors and empty spaces(constants from spritemap)
 	WallsMap  [][]string // a list of actual *sprites* for walls (constants from spritemap)
 	SpriteMap [][]string // a list of actual *sprites* for things that move + decorations (constants from spritemap)
@@ -112,14 +112,15 @@ func toSprites(tiles [][]string, floorMap [][]string, wallsMap [][]string) [][]s
 				default: // everything else
 					sprite = random(Floors)
 				}
-			} else if isA(Wall) { // left/right/bottom "walls" are just empty space w/ shadows
+			} else if isA(Wall) {
+				// left/right/bottom "walls" are just empty space w/ shadows
 				floorSurrounds := surroundingScenario(floorMap, row, col)
 				wallSurrounds := surroundingScenario(wallsMap, row, col)
 
 				switch {
 				case floorSurrounds.right == RoomFloor && floorSurrounds.left == Nothing:
 					sprite = TheUnknown
-				case  floorSurrounds.left == Nothing && wallSurrounds.right == Wall:
+				case floorSurrounds.left == Nothing && wallSurrounds.right == Wall:
 					sprite = TheUnknown
 				case floorSurrounds.left == RoomFloor && floorSurrounds.right == Nothing:
 					sprite = TheUnknown
@@ -129,13 +130,28 @@ func toSprites(tiles [][]string, floorMap [][]string, wallsMap [][]string) [][]s
 					sprite = TheUnknown
 				case floorSurrounds.top == RoomFloor && wallSurrounds.bottom == Wall:
 					sprite = TheUnknown
-				 default:
+				default:
 					sprite = random(Walls)
 				}
 			} else if isA(WallWithDecoration) {
 				sprite = BannerRed1
+			} else if isA(Table) {
+				if tiles[row][col+1] == Placeholder {
+					sprite = TableHorizontal
+				} else {
+					sprite = TableVertical
+				}
 			} else if isA(Hero) {
 				sprite = HeroArmed2
+			} else if isA(Door) {
+				floorSurrounds := surroundingScenario(floorMap, row, col)
+				switch {
+				case floorSurrounds.top == Wall && floorSurrounds.bottom == Wall: // door sideways
+					//sprite =random(DoorsSideways)
+				case floorSurrounds.left == Wall && floorSurrounds.right == Wall: // door up/down
+					sprite = random(DoorsFrontFacing)
+				}
+
 			} else if isA(BigMonster) {
 				sprite = GorgonArmed
 			} else if isA(SmallMonster) {
