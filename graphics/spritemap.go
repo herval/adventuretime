@@ -164,26 +164,29 @@ func (s *Spritemap) BlipInto(dst *image.RGBA, x int, y int, sprite string) {
 
 		// draw shadow, if sprite has one
 		shadow := s.shadowFor(sprite)
+		if shadow != nil {
+			// TODO darken shadow (tint)
+			// mask := image.NewUniform(color.RGBA{100, 200, 100, 200})
+			shadowOffset := (shadow.H / 4) + SquareSize/5
+			pointOnSpritesheet := image.Point{shadow.X, shadow.Y}
+			position := image.Rect(x, y+shadowOffset, x+shadow.W, y+shadow.H+shadowOffset)
+			// draw.DrawMask(dst, position, s.Spritesheet, pointOnSpritesheet, mask, image.Point{}, draw.Over)
+			draw.Draw(dst, position, s.Spritesheet, pointOnSpritesheet, draw.Over)
+		}
 
 		// blip a piece of the sprite sheet into a position on the dst image
 		pointOnSpritesheet := image.Point{sheetPosition.X, sheetPosition.Y}
 		position := image.Rect(basePosX, basePosY, basePosX+sheetPosition.W, basePosY+sheetPosition.H)
 		draw.Draw(dst, position, s.Spritesheet, pointOnSpritesheet, draw.Over)
-
-		if shadow != nil {
-			// mask := image.NewUniform(color.Alpha{128})
-			shadowOffset := offsetY + (shadow.H + SquareSize)
-			pointOnSpritesheet := image.Point{shadow.X, shadow.Y}
-			position := image.Rect(basePosX, basePosY+shadowOffset, basePosX+shadow.W, basePosY+shadow.H)
-			draw.Draw(dst, position, s.Spritesheet, pointOnSpritesheet, draw.Over)
-		}
 	}
 }
 
 func (s *Spritemap) shadowFor(name string) *Dimensions {
-	// if name == HeroArmed2 || name == GoblinArmed {
-	// 	return s.frameFor(SmallShadow)
-	// }
+	if name == HeroArmed2 {
+		return s.frameFor(SmallShadow)
+	} else if name == GoblinArmed {
+		return s.frameFor(SmallShadow)
+	}
 
 	return nil
 }

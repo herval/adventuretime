@@ -42,13 +42,22 @@ func SaveImage(img *image.RGBA, destination string) {
 func (r *Renderer) render(scene *Scene, m *image.RGBA) {
 	for row := 0; row < len(scene.Tiles); row++ {
 		for col := 0; col < len(scene.Tiles[row]); col++ {
-			r.drawScenario(scene, m, row, col)
+			r.drawFloor(scene, m, row, col)
+		}
+	}
+	for row := 0; row < len(scene.Tiles); row++ {
+		for col := 0; col < len(scene.Tiles[row]); col++ {
 			r.drawCharacter(scene, m, row, col)
+		}
+	}
+	for row := 0; row < len(scene.Tiles); row++ {
+		for col := 0; col < len(scene.Tiles[row]); col++ {
+			r.drawWalls(scene, m, row, col)
 		}
 	}
 }
 
-func (r *Renderer) drawScenario(scene *Scene, m *image.RGBA, row int, col int) {
+func (r *Renderer) drawFloor(scene *Scene, m *image.RGBA, row int, col int) {
 	var sprite string
 
 	if scene.IsTile(row, col, Nothing) {
@@ -83,7 +92,22 @@ func (r *Renderer) drawScenario(scene *Scene, m *image.RGBA, row int, col int) {
 			} else { // everything else
 				sprite = random(Floors)
 			}
-		} else if scene.IsTile(row, col, Wall) { // left/right/bottom "walls" are just empty space w/ shadows
+		}
+	}
+	if sprite != "" {
+		r.Sprites.BlipInto(m, col*SquareSize, row*SquareSize, sprite)
+	}
+}
+
+func (r *Renderer) drawWalls(scene *Scene, m *image.RGBA, row int, col int) {
+	var sprite string
+
+	if scene.IsTile(row, col, Nothing) {
+		sprite = TheUnknown
+	} else {
+		surrounds := scene.SurroundingScenario(row, col)
+
+		if scene.IsTile(row, col, Wall) { // left/right/bottom "walls" are just empty space w/ shadows
 			// if surrounds.right == RoomFloor && surrounds.top == Nothing {
 			if surrounds.right == RoomFloor && surrounds.left == Nothing {
 				sprite = TheUnknown
