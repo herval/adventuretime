@@ -36,6 +36,9 @@ const (
 	TableHorizontal = "75.png"
 
 	TheUnknown = "23.png"
+
+	SmallShadow = "804.png"
+	LargeShadow = "805.png"
 )
 
 var Walls = []string{
@@ -140,27 +143,58 @@ type Spritemap struct {
 	Spritesheet   *image.RGBA
 }
 
-func (s *Spritemap) BlipInto(dst *image.RGBA, x int, y int, spriteName string) {
-	sprite := s.Sprite(spriteName)
+func (s *Spritemap) BlipInto(dst *image.RGBA, x int, y int, sprite string) {
+	sheetPosition := s.frameFor(sprite)
+	if sheetPosition != nil {
+		// offsets "project" the sprites up (for longer or wider sprites)
+		offsetY := sheetPosition.H - SquareSize
+		offsetX := sheetPosition.W - SquareSize
 
-	point := image.Point{
-		X: x,
-		Y: y,
+		point := image.Point{
+			X: x,
+			Y: y,
+		}
+
+		if offsetX != 0 || offsetY != 0 {
+			util.Debug(fmt.Sprintf("BLIPPING: %+v - %+v - %+v\n", sprite, point, sheetPosition))
+		}
+
+		basePosX := x - offsetX
+		basePosY := y - offsetY
+
+		// draw shadow, if sprite has one
+		shadow := s.shadowFor(sprite)
+
+		// blip a piece of the sprite sheet into a position on the dst image
+		pointOnSpritesheet := image.Point{sheetPosition.X, sheetPosition.Y}
+		position := image.Rect(basePosX, basePosY, basePosX+sheetPosition.W, basePosY+sheetPosition.H)
+		draw.Draw(dst, position, s.Spritesheet, pointOnSpritesheet, draw.Over)
+
+		if shadow != nil {
+			// mask := image.NewUniform(color.Alpha{128})
+			shadowOffset := offsetY + (shadow.H + SquareSize)
+			pointOnSpritesheet := image.Point{shadow.X, shadow.Y}
+			position := image.Rect(basePosX, basePosY+shadowOffset, basePosX+shadow.W, basePosY+shadow.H)
+			draw.Draw(dst, position, s.Spritesheet, pointOnSpritesheet, draw.Over)
+		}
 	}
-
-	util.Debug(fmt.Sprintf("%+v - %+v\n", sprite.Dimensions, point))
-
-	pointOnSpritesheet := image.Point{sprite.Dimensions.X, sprite.Dimensions.Y}
-
-	position := image.Rect(x, y, x+sprite.Dimensions.W, y+sprite.Dimensions.H)
-
-	draw.Draw(dst, position, s.Spritesheet, pointOnSpritesheet, draw.Over)
 }
 
-func (s *Spritemap) Sprite(name string) Frame {
-	// TODO not found?
-	frame, _ := s.Frames[name]
-	return frame
+func (s *Spritemap) shadowFor(name string) *Dimensions {
+	// if name == HeroArmed2 || name == GoblinArmed {
+	// 	return s.frameFor(SmallShadow)
+	// }
+
+	return nil
+}
+
+func (s *Spritemap) frameFor(name string) *Dimensions {
+	frame, found := s.Frames[name]
+	if found {
+		return &frame.Dimensions
+	}
+	util.Debug(fmt.Sprintf("Sprite not found: %s", name))
+	return nil
 }
 
 // load the default spritemap file

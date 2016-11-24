@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-
-	"github.com/herval/adventuretime/util"
 )
 
 type FramesLoader struct {
@@ -26,7 +24,7 @@ func (l *FramesLoader) Parse(fileName string) map[string]Frame {
 	var data jsonobject
 	json.Unmarshal(file, &data)
 
-	util.Debug(fmt.Sprintf("Results: %+v\n", data.Frames))
+	// util.Debug(fmt.Sprintf("Results: %+v\n", data.Frames))
 
 	return data.Frames
 }
