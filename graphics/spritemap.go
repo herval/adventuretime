@@ -11,146 +11,168 @@ import (
 	"github.com/herval/adventuretime/util"
 )
 
-const (
-	SquareSize = 16
+var SquareSize = 16
 
-	Stair1 = "67.png"
+var TheUnknown = Sprite{"23.png", nil}
 
-	LargeStairs1 = "68.png"
+var SmallShadow = Sprite{"804.png", nil}
 
-	Passage = "73.png"
+var LargeShadow = Sprite{"805.png", nil}
 
-	BannerRed1 = "290.png"
+var Stair1 = Sprite{"67.png", nil}
 
-	HeroUnarmed2 = "302.png"
-	HeroArmed2   = "303.png"
+var LargeStairs1 = Sprite{"68.png", nil}
 
-	GoblinArmed = "327.png"
+var Passage = Sprite{"73.png", nil}
 
-	GorgonArmed = "326.png"
+var BannerRed1 = Sprite{"290.png", nil}
 
-	TableHorizontal = "75.png"
+var HeroUnarmed2 = Sprite{"302.png", &SmallShadow}
+var HeroArmed2 = Sprite{"303.png", &SmallShadow}
 
-	TableVertical = "74.png"
-
-	TheUnknown = "23.png"
-
-	SmallShadow = "804.png"
-	LargeShadow = "805.png"
-
-	Fire = "802.png"
-)
-
-var DoorsFrontFacing = []string{
-	"69.png",
-	"70.png",
-	"71.png",
-	"72.png",
+var BigMonsters = []Sprite{
+	Sprite{"326.png", &SmallShadow},
+	Sprite{"325.png", &SmallShadow},
 }
 
-var Walls = []string{
-	"60.png",
-	"61.png",
-	"62.png",
-	"63.png",
+var SmallMonsters = []Sprite{
+	Sprite{"327.png", &SmallShadow},
+	Sprite{"328.png", &SmallShadow},
+	Sprite{"329.png", &SmallShadow},
+	Sprite{"330.png", &SmallShadow},
+	Sprite{"331.png", &SmallShadow},
+	Sprite{"332.png", &SmallShadow},
+	Sprite{"333.png", &SmallShadow},
+	Sprite{"334.png", &SmallShadow},
+	Sprite{"335.png", &SmallShadow},
 }
 
-var FloorTopLefts = []string{
-	"211.png",
-	"270.png",
+var TableHorizontal = Sprite{"75.png", &LargeShadow}
+var TableVertical = Sprite{"74.png", &LargeShadow}
+
+var Fire = Sprite{"802.png", nil}
+
+var DoorsFrontFacing = []Sprite{
+	Sprite{"69.png", nil},
+	Sprite{"70.png", nil},
+	Sprite{"71.png", nil},
+	Sprite{"72.png", nil},
 }
 
-var FloorTopRights = []string{
-	"212.png",
-	"269.png",
+var Banners = []Sprite{
+	Sprite{"286.png", nil},
+	Sprite{"287.png", nil},
+	Sprite{"288.png", nil},
+	Sprite{"289.png", nil},
+	Sprite{"290.png", nil},
+	Sprite{"291.png", nil},
 }
 
-var FloorBottomRights = []string{
-	"214.png",
-	"267.png",
+var Walls = []Sprite{
+	Sprite{"60.png", nil},
+	Sprite{"61.png", nil},
+	Sprite{"62.png", nil},
+	Sprite{"63.png", nil},
 }
 
-var FloorLeftRights = []string{
-	"233.png",
-	"234.png",
+var FloorTopLefts = []Sprite{
+	Sprite{"211.png", nil},
+	Sprite{"270.png", nil},
 }
 
-var FloorTopBottoms = []string{
-	"231.png",
-	"232.png",
+var FloorTopRights = []Sprite{
+	Sprite{"212.png", nil},
+	Sprite{"269.png", nil},
 }
 
-var FloorBottomLefts = []string{
-	"268.png",
-	"213.png",
+var FloorBottomRights = []Sprite{
+	Sprite{"214.png", nil},
+	Sprite{"267.png", nil},
 }
 
-var FloorLeftRightTops = []string{
-	"228.png",
+var FloorLeftRights = []Sprite{
+	Sprite{"233.png", nil},
+	Sprite{"234.png", nil},
 }
 
-var FloorLeftRightBottoms = []string{
-	"266.png",
+var FloorTopBottoms = []Sprite{
+	Sprite{"231.png", nil},
+	Sprite{"232.png", nil},
 }
 
-var FloorTopBottomRights = []string{
-	"229.png",
+var FloorBottomLefts = []Sprite{
+	Sprite{"268.png", nil},
+	Sprite{"213.png", nil},
 }
 
-var FloorTopBottomLefts = []string{
-	"227.png",
+var FloorLeftRightTops = []Sprite{
+	Sprite{"228.png", nil},
 }
 
-var FloorBottoms = []string{
-	"221.png",
-	"222.png",
-	"223.png",
+var FloorLeftRightBottoms = []Sprite{
+	Sprite{"266.png", nil},
 }
 
-var Shadow = "804.png"
-
-var FloorTops = []string{
-	"220.png",
-	"219.png",
-	"218.png",
+var FloorTopBottomRights = []Sprite{
+	Sprite{"229.png", nil},
 }
 
-var FloorLefts = []string{
-	"215.png",
-	"216.png",
-	"217.png",
+var FloorTopBottomLefts = []Sprite{
+	Sprite{"227.png", nil},
 }
 
-var FloorRights = []string{
-	"225.png",
-	"226.png",
-	"224.png",
+var FloorBottoms = []Sprite{
+	Sprite{"221.png", nil},
+	Sprite{"222.png", nil},
+	Sprite{"223.png", nil},
 }
 
-var Floors = []string{
-	"271.png",
-	"271.png",
-	"271.png",
-	"271.png",
-	"272.png",
-	"272.png",
-	"272.png",
-	"272.png",
-	"273.png",
-	"274.png",
-	"275.png",
-	"276.png",
-	"277.png",
-	"278.png",
+var FloorTops = []Sprite{
+	Sprite{"220.png", nil},
+	Sprite{"219.png", nil},
+	Sprite{"218.png", nil},
+}
+
+var FloorLefts = []Sprite{
+	Sprite{"215.png", nil},
+	Sprite{"216.png", nil},
+	Sprite{"217.png", nil},
+}
+
+var FloorRights = []Sprite{
+	Sprite{"225.png", nil},
+	Sprite{"226.png", nil},
+	Sprite{"224.png", nil},
+}
+
+var Floors = []Sprite{
+	Sprite{"271.png", nil},
+	Sprite{"271.png", nil},
+	Sprite{"271.png", nil},
+	Sprite{"271.png", nil},
+	Sprite{"272.png", nil},
+	Sprite{"272.png", nil},
+	Sprite{"272.png", nil},
+	Sprite{"272.png", nil},
+	Sprite{"273.png", nil},
+	Sprite{"274.png", nil},
+	Sprite{"275.png", nil},
+	Sprite{"276.png", nil},
+	Sprite{"277.png", nil},
+	Sprite{"278.png", nil},
+}
+
+type Sprite struct {
+	id     string
+	shadow *Sprite
 }
 
 type Spritemap struct {
-	SmallMonsters []*Frame
-	Frames        map[string]Frame
-	Spritesheet   *image.RGBA
+	Frames      map[string]Frame
+	Spritesheet *image.RGBA
 }
 
-func (s *Spritemap) BlipInto(dst *image.RGBA, x int, y int, sprite string) {
+func (s *Spritemap) BlipInto(dst *image.RGBA, x int, y int, sprite *Sprite) {
 	sheetPosition := s.frameFor(sprite)
 	if sheetPosition != nil {
 		// offsets "project" the sprites up (for longer or wider sprites)
@@ -188,23 +210,20 @@ func (s *Spritemap) BlipInto(dst *image.RGBA, x int, y int, sprite string) {
 	}
 }
 
-func (s *Spritemap) shadowFor(name string) *Dimensions {
-	switch name {
-	case HeroArmed2, GoblinArmed, GorgonArmed:
-		return s.frameFor(SmallShadow)
-	case TableHorizontal, TableVertical:
-		return s.frameFor(LargeShadow)
-	}
-
-	return nil
+func (s *Spritemap) shadowFor(sprite *Sprite) *Dimensions {
+	return s.frameFor(sprite.shadow)
 }
 
-func (s *Spritemap) frameFor(name string) *Dimensions {
-	frame, found := s.Frames[name]
+func (s *Spritemap) frameFor(sprite *Sprite) *Dimensions {
+	if sprite == nil {
+		return nil
+	}
+
+	frame, found := s.Frames[sprite.id]
 	if found {
 		return &frame.Dimensions
 	}
-	util.Debug(fmt.Sprintf("Sprite not found: %s", name))
+	util.Debug(fmt.Sprintf("Sprite not found: %s", sprite))
 	return nil
 }
 
@@ -229,10 +248,8 @@ func LoadSpritemap(spritesPath string) Spritemap {
 }
 
 func NewSpritemap(frames map[string]Frame, spritesheet *image.RGBA) Spritemap {
-
 	return Spritemap{
-		SmallMonsters: []*Frame{},
-		Frames:        frames,
-		Spritesheet:   spritesheet,
+		Frames:      frames,
+		Spritesheet: spritesheet,
 	}
 }

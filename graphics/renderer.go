@@ -3,7 +3,6 @@ package graphics
 import (
 	"image"
 	"image/png"
-	"math/rand"
 	"os"
 )
 
@@ -25,7 +24,6 @@ func NewRenderer(spritesPath string, width int, height int) Renderer {
 func (r *Renderer) DrawScene(scene *Scene) *image.RGBA {
 	m := image.NewRGBA(r.CanvasSize)
 
-	// intentionally ineficient :)
 	r.render(scene, m)
 
 	return m
@@ -60,16 +58,8 @@ func (r *Renderer) render(scene *Scene, m *image.RGBA) {
 	// TODO redraw bottom walls to occlude sprites
 }
 
-func (r *Renderer) drawSprite(m *image.RGBA, row int, col int, sprite string) {
-	if sprite != "" {
+func (r *Renderer) drawSprite(m *image.RGBA, row int, col int, sprite *Sprite) {
+	if sprite != nil {
 		r.Sprites.BlipInto(m, col*SquareSize, row*SquareSize, sprite)
 	}
-}
-
-func random(source []string) string {
-	// if len(source) > 1 {
-	return source[rand.Intn(len(source))]
-	// } else {
-	// return source[0]
-	// }
 }
