@@ -38,6 +38,7 @@ func parseCommand(cmd string) Command {
 	invisibles := " \n\r\t"
 	op := strings.ToLower(strings.Trim(tokens[0], invisibles))
 	switch op {
+	// talk, wave, attack, pick, grab, drop
 	case "walk", "move", "go":
 		if len(tokens) < 2 {
 			return &UnknownCommand{}
