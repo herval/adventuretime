@@ -1,5 +1,7 @@
 package engine
 
+const MAX_HP = 100
+
 type Item struct {
 }
 
@@ -26,4 +28,18 @@ func NewPlayer(room *Room) *Player {
 		CurrentLocation: room,
 		Inventory:       nil,
 	}
+}
+
+func (p *Player) Heal(amount int) {
+	if p.Hp < MAX_HP {
+		p.Hp += min(amount, MAX_HP-p.Hp)
+	}
+}
+
+// wtf go
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

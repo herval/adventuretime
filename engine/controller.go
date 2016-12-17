@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 
@@ -21,8 +20,14 @@ func NewController() *Controller {
 }
 
 func (self *Controller) Execute(op Command) (*GameState, Result) {
-	util.Debug(fmt.Sprintf("%+v", op))
+	util.DebugFmt("%+v", op)
 	state, executed := op.Execute(self.State)
+
+	if !executed.Noop {
+		state.CurrentTurn += 1
+	}
+	// TODO update the rest of the world
+
 	self.State = state
 	return self.State, executed
 }

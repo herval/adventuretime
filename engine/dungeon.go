@@ -1,10 +1,9 @@
 package engine
 
 import (
-	"fmt"
+	"math/rand"
 
 	"github.com/herval/adventuretime/util"
-	"math/rand"
 )
 
 type Dungeon struct {
@@ -22,21 +21,20 @@ func NewDungeon() *Dungeon {
 	mainHall := RandomRoom(nil, youShallNotPass)
 	mainHall.details = "This is the entrance of the Dungeon."
 
-	util.Debug(fmt.Sprintf("Init dungeon: %s", mainHall))
+	util.DebugFmt("Init dungeon: %s", mainHall)
 
 	return &Dungeon{
 		Entrance: mainHall,
 	}
 }
 
-
 // =====
 
 // Rooms are a linked list pointing to up to 4 other rooms through doors
 type Room struct {
 	doors   []*Door
-	props []*Prop
-	npcs []*Npc
+	props   []*Prop
+	npcs    []*Npc
 	details string
 }
 
@@ -102,9 +100,7 @@ func RandomRoom(comingFromRoom *Room, entryDoor *Door) *Room {
 	return room
 }
 
-
 // =====
-
 
 // The Doors
 type Door struct {
@@ -119,9 +115,9 @@ func (self *Door) Open() *Room {
 	if self.to == nil {
 		util.Debug("No 'to' set! Generating...")
 		self.to = RandomRoom(self.from, self)
-		util.Debug(fmt.Sprintf("New to: %s", self.to))
+		util.DebugFmt("New to: %s", self.to)
 	} else {
-		util.Debug(fmt.Sprintf("Moving to existing room %s", self.to))
+		util.DebugFmt("Moving to existing room %s", self.to)
 	}
 
 	return self.to
@@ -159,24 +155,21 @@ func generateDoors(previousRoom *Room, currentRoom *Room, enteringFrom *Door) []
 		}
 	}
 
-	util.Debug(fmt.Sprintf("Gen Doors: %s", doors))
+	util.DebugFmt("Gen Doors: %s", doors)
 
 	return doors
 }
 
-
-// =====
+// -----
+// Props (decorative stuff you can't interact with)
+// -----
 
 type Prop struct {
-
+	Description string
 }
 
 func generateProps() []*Prop {
-	return  make([]*Prop, 0)
-}
-
-func (n *Prop) Describe() string {
-	return "a foo"
+	return make([]*Prop, 0)
 }
 
 // =====

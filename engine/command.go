@@ -5,39 +5,54 @@ type Command interface {
 	Execute(state *GameState) (*GameState, Result)
 }
 
+func CommandDescriptions() string {
+	return "walk <east|west|north|south>\n" +
+		"rest\n"
+}
+
 // the result of a command
-type Result interface {
-	Describe() string
-}
-
-type Ok struct {
-	Description string
-}
-
-func (self *Ok) Describe() string {
-	return self.Description
-}
-
-type Noop struct {
-	Description string
-}
-
-func (self *Noop) Describe() string {
-	return self.Description
+type Result struct {
+	Invalid     bool   // command is not valid
+	Noop        bool   // command didn't do anything
+	Description string // a poetic output
 }
 
 // Eat/consume/drink
-// Walk/move/go
 // Pickup/take
 // Drop
 
 type UnknownCommand struct{}
 
 func (self *UnknownCommand) Execute(state *GameState) (*GameState, Result) {
-	return state, &Noop{
+	return state, Result{
+		Invalid:     true,
+		Noop:        true,
 		Description: "Unknown command - type 'help' or enter a valid command.",
 	}
 }
+
+//--------
+// Resting
+//--------
+
+type Rest struct {
+}
+
+func (self *Rest) Execute(state *GameState) (returnedState *GameState, result Result) {
+	returnedState = state
+
+	returnedState.Player.Heal(1)
+
+	result = Result{
+		Description: "You rest a little bit.",
+	}
+
+	return
+}
+
+//-------
+// Moving
+//-------
 
 type Move struct {
 	Direction Direction
@@ -47,7 +62,7 @@ func (self *Move) Execute(state *GameState) (returnedState *GameState, result Re
 	returnedState = state
 
 	if self.Direction == UNKNOWN {
-		result = &Noop{
+		result = Result{
 			Description: "Can't walk that way.",
 		}
 		return
@@ -59,12 +74,12 @@ func (self *Move) Execute(state *GameState) (returnedState *GameState, result Re
 	for _, door := range currentRoom.doors {
 		if self.Direction == door.facing {
 			if door.locked {
-				result = &Noop{
+				result = Result{
 					Description: "The door is locked.",
 				}
 			} else {
 				player.CurrentLocation = door.Open()
-				result = &Ok{
+				result = Result{
 					Description: "You walked " + directionToStr(self.Direction) + ".",
 				}
 			}
@@ -72,7 +87,8 @@ func (self *Move) Execute(state *GameState) (returnedState *GameState, result Re
 		}
 	}
 
-	result = &Noop{
+	result = Result{
+		Noop:        true,
 		Description: "Can't walk that way.",
 	}
 	return

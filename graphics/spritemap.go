@@ -1,7 +1,6 @@
 package graphics
 
 import (
-	"fmt"
 	"image"
 	"image/draw"
 	"image/png"
@@ -185,7 +184,7 @@ func (s *Spritemap) BlipInto(dst *image.RGBA, x int, y int, sprite *Sprite) {
 		}
 
 		if offsetX != 0 || offsetY != 0 {
-			util.Debug(fmt.Sprintf("BLIPPING: %+v - %+v - %+v\n", sprite, point, sheetPosition))
+			util.DebugFmt("BLIPPING: %+v - %+v - %+v\n", sprite, point, sheetPosition)
 		}
 
 		basePosX := x - offsetX
@@ -223,7 +222,7 @@ func (s *Spritemap) frameFor(sprite *Sprite) *Dimensions {
 	if found {
 		return &frame.Dimensions
 	}
-	util.Debug(fmt.Sprintf("Sprite not found: %s", sprite))
+	util.DebugFmt("Sprite not found: %s", sprite)
 	return nil
 }
 

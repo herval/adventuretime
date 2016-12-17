@@ -1,8 +1,8 @@
 package graphics
 
 import (
-	"fmt"
 	"testing"
+	"github.com/herval/adventuretime/util"
 )
 
 func TestRenderer(t *testing.T) {
@@ -24,7 +24,7 @@ func TestRenderer(t *testing.T) {
 ..........................................
 ..........................................`)
 
-	fmt.Println("Rendering:\n", scene)
+	util.DebugFmt("Rendering:\n", scene)
 
 	renderer := NewRenderer("../resources", 700, 700)
 

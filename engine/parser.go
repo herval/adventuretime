@@ -1,6 +1,7 @@
 package engine
 
 import "strings"
+import "fmt"
 
 type CommandParser interface {
 	ParseCommand(cmd string) Command
@@ -49,6 +50,8 @@ func parseCommand(cmd string) Command {
 				Direction: dir,
 			}
 		}
+	case "rest", "wait":
+		return &Rest{}
 	case "help", "?":
 		return &Help{}
 	}
@@ -58,11 +61,12 @@ func parseCommand(cmd string) Command {
 type Help struct{}
 
 func (self *Help) Execute(state *GameState) (*GameState, Result) {
-	return state, &Noop{
+	return state, Result{
+		Noop:        true,
 		Description: self.Describe(),
 	}
 }
 
 func (self *Help) Describe() string {
-	return "Supported commands:\n\n'walk <east|west|north|south>'\n"
+	return fmt.Sprintf("Supported commands:\n\n%s\n", CommandDescriptions())
 }

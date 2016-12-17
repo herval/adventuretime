@@ -1,14 +1,18 @@
 package graphics
 
 import (
-	"fmt"
 	"testing"
+	"github.com/herval/adventuretime/util"
 )
 
 func TestSpritemap(t *testing.T) {
 
 	spritemap := LoadSpritemap("../resources")
 
-	fmt.Printf("%+v", spritemap)
+	if len(spritemap.Frames) == 0 {
+		t.Fail()
+	}
+
+	util.DebugFmt("%+v", spritemap)
 
 }

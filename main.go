@@ -81,12 +81,11 @@ func twitterGame() {
 
 		_, op := controller.Execute(parser.ParseCommand(mention.Text))
 
-		api.Post(fmt.Sprintf("@%s %s", mention.User.ScreenName, op.Describe()))
+		api.Post(fmt.Sprintf("@%s %s", mention.User.ScreenName, op.Description))
 
-		switch op.(type) {
-		case *engine.Noop: // do nothing
+		if op.Invalid {
 			fmt.Println("Invalid command: ", mention.Text)
-		default:
+		} else {
 			api.Post(controller.State.Describe())
 		}
 	}
@@ -103,6 +102,6 @@ func commandLineGame() {
 
 		cmd, _ := reader.ReadString('\n')
 		_, op := controller.Execute(parser.ParseCommand(cmd))
-		fmt.Print(fmt.Sprintf("\n%s\n\n", op.Describe()))
+		fmt.Print(fmt.Sprintf("\n%s\n\n", op.Description))
 	}
 }

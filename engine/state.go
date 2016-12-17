@@ -5,6 +5,7 @@ import "github.com/herval/adventuretime/util"
 type GameState struct {
 	Player  *Player
 	Dungeon *Dungeon
+	CurrentTurn uint32
 }
 
 func NewGame() *GameState {
@@ -17,6 +18,7 @@ func NewGame() *GameState {
 	return &GameState{
 		Player:  player,
 		Dungeon: dungeon,
+		CurrentTurn: 0,
 	}
 }
 
