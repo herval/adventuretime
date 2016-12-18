@@ -3,7 +3,10 @@ package engine
 import (
 	"math/rand"
 
+	"fmt"
+
 	"github.com/herval/adventuretime/util"
+	"strings"
 )
 
 type Dungeon struct {
@@ -18,7 +21,7 @@ func NewDungeon() *Dungeon {
 		locked: true,
 	}
 
-	mainHall := RandomRoom(nil, youShallNotPass)
+	mainHall := randomRoom(nil, youShallNotPass)
 	mainHall.details = "This is the entrance of the Dungeon."
 
 	util.DebugFmt("Init dungeon: %s", mainHall)
@@ -32,61 +35,70 @@ func NewDungeon() *Dungeon {
 
 // Rooms are a linked list pointing to up to 4 other rooms through doors
 type Room struct {
-	doors   []*Door
-	props   []*Prop
-	npcs    []*Npc
-	details string
+	doors   []*Door // doors, duh
+	props   []*Prop // stuff you don't interact with
+	npcs    []*Npc  // things that can kill you
+	details string  // mood and ambiance
 }
 
 func (r *Room) Describe() string {
-	var str = "You are in a room."
+	var str = []string{
+		"You are in a room",
+	}
 
-	doors := len(r.doors)
-
-	if doors == 1 {
-		str += " There's a door facing " + directionToStr(r.doors[0].facing) + "."
-	} else if doors > 1 {
-		str += " There are doors facing "
-		for i := 0; i < doors-1; i++ {
-			str += directionToStr(r.doors[i].facing)
-			if i < doors-2 {
-				str += ", "
-			}
+	if len(r.doors) > 0 {
+		doors := len(r.doors)
+		s := make([]string, doors - 1)
+		for i := 0; i < doors - 1; i++ {
+			s[i] = directionToStr(r.doors[i].facing)
 		}
-		str += " and " + directionToStr(r.doors[doors-1].facing) + ". "
+		last := directionToStr(r.doors[doors - 1].facing)
+		isOrAre := ""
+		if doors == 1 {
+			isOrAre = "There is a door"
+		} else {
+			isOrAre = "There are doors"
+		}
+		str = append(
+			str,
+			fmt.Sprintf(" %s facing %s and %s.", isOrAre, strings.Join(s, ", "), last),
+		)
 	}
 
 	if len(r.npcs) > 0 {
-		descriptions := ""
+		descriptions := make([]string, len(r.npcs))
 		for i, npc := range r.npcs {
-			descriptions += npc.Describe()
-			if i < len(r.npcs)-1 {
-				descriptions += ", "
-			}
+			descriptions[i] = npc.Description
 		}
-		str += "You see " + descriptions
+		str = append(
+			str,
+			fmt.Sprintf("You see %s.", strings.Join(descriptions, ", ")),
+		)
 	}
 
 	if len(r.props) > 0 {
-		descriptions := ""
+		descriptions := make([]string, len(r.props))
 		for i, prop := range r.props {
-			descriptions += prop.Describe()
-			if i < len(r.npcs)-1 {
-				descriptions += ", "
-			}
+			descriptions[i] = prop.Description
 		}
-		str += "There's " + descriptions
+		str = append(
+			str,
+			fmt.Sprintf("There's %s", strings.Join(descriptions, ", ")),
+		)
 	}
 
 	if r.details != "" {
-		str += "\n" + r.details
+		str = append(
+			str,
+			r.details,
+		)
 	}
 
-	return str
+	return strings.Join(str, ". ")
 }
 
 // entryDoor is the door from the *previous room* that leads to the new room
-func RandomRoom(comingFromRoom *Room, entryDoor *Door) *Room {
+func randomRoom(comingFromRoom *Room, entryDoor *Door) *Room {
 	util.Debug("Building new room...")
 
 	room := &Room{} // TODO add stuff
@@ -114,7 +126,7 @@ type Door struct {
 func (self *Door) Open() *Room {
 	if self.to == nil {
 		util.Debug("No 'to' set! Generating...")
-		self.to = RandomRoom(self.from, self)
+		self.to = randomRoom(self.from, self)
 		util.DebugFmt("New to: %s", self.to)
 	} else {
 		util.DebugFmt("Moving to existing room %s", self.to)
@@ -144,7 +156,7 @@ func generateDoors(previousRoom *Room, currentRoom *Room, enteringFrom *Door) []
 	// }
 
 	for _, facing := range potentialDirections {
-		if rand.Int()%2 == 0 {
+		if rand.Int() % 2 == 0 {
 			doors = append(
 				doors,
 				&Door{
@@ -169,18 +181,35 @@ type Prop struct {
 }
 
 func generateProps() []*Prop {
-	return make([]*Prop, 0)
+	props := make([]*Prop, rand.Intn(4))
+	for i := 0; i < len(props); i++ {
+		props[i] = randomProp()
+	}
+	return props
+}
+
+var propTypes = []string{
+	"a red banner decorates the wall",
+	"a yellow banner decorates the wall",
+	"a torch flickers on the wall",
+	"the rotting remains of an adventurer lay on the floor",
+	"a pool of blood on the floor",
+	"a wooden table",
+}
+
+func randomProp() *Prop {
+	return &Prop{
+		Description: propTypes[rand.Intn(len(propTypes) - 1)],
+	}
 }
 
 // =====
 
 // non-playable stuff
 type Npc struct {
-	health int
-}
-
-func (n *Npc) Describe() string {
-	return "a foo"
+	Health      int
+	Hostile     bool
+	Description string
 }
 
 func generateNpcs() []*Npc {
