@@ -1,14 +1,15 @@
-package graphics
+package graphics_test
 
 import (
 	"testing"
 	"github.com/herval/adventuretime/util"
+	"github.com/herval/adventuretime/graphics"
 )
 
 func TestRenderer(t *testing.T) {
 	println("Rendering...")
 
-	scene := NewScene(`.....................|||..................
+	scene := graphics.NewScene(`.....................|||..................
 .....................|_||||...............
 .....................|____|...............
 ....|||||^|||D||||...|_|..................
@@ -26,9 +27,9 @@ func TestRenderer(t *testing.T) {
 
 	util.DebugFmt("Rendering:\n", scene)
 
-	renderer := NewRenderer("../resources", 700, 700)
+	renderer := graphics.NewRenderer("../resources", 700, 700)
 
 	img := renderer.DrawScene(&scene)
 
-	SaveImage(img, "../new.png")
+	graphics.SaveImage(img, "../new.png")
 }

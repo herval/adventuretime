@@ -71,16 +71,16 @@ func (self *Move) Execute(state *GameState) (returnedState *GameState, result Re
 	player := state.Player
 	currentRoom := state.Player.CurrentLocation
 
-	for _, door := range currentRoom.doors {
+	for _, door := range currentRoom.Doors {
 		if self.Direction == door.facing {
-			if door.locked {
+			if door.Locked {
 				result = Result{
-					Description: "The door is locked.",
+					Description: "The door is Locked.",
 				}
 			} else {
 				player.CurrentLocation = door.Open()
 				result = Result{
-					Description: "You walked " + directionToStr(self.Direction) + ".",
+					Description: "You walked " + DirectionToStr(self.Direction) + ".",
 				}
 			}
 			return

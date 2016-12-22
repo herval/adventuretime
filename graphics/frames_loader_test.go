@@ -1,12 +1,13 @@
-package graphics
+package graphics_test
 
 import (
 	"fmt"
 	"testing"
+	"github.com/herval/adventuretime/graphics"
 )
 
 func TestSitemapLoader(t *testing.T) {
-	loader := FramesLoader{}
+	loader := graphics.FramesLoader{}
 
 	data := loader.Parse("../resources/sprites.json")
 

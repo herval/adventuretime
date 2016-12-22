@@ -1,7 +1,7 @@
 package engine
 
 const (
-	NORTH = iota
+	NORTH Direction = iota
 	SOUTH
 	EAST
 	WEST
@@ -28,15 +28,15 @@ var AllDirections = []Direction{NORTH, SOUTH, EAST, WEST}
 
 func DirectionsMinus(direction Direction) []Direction {
 	all := []Direction{}
-	for i := 0; i < UNKNOWN; i++ {
-		if Direction(i) != direction {
-			all = append(all, Direction(i))
+	for i := range AllDirections {
+		if AllDirections[i] != direction {
+			all = append(all, AllDirections[i])
 		}
 	}
 	return all
 }
 
-func directionToStr(direction Direction) string {
+func DirectionToStr(direction Direction) string {
 	switch direction {
 	case NORTH:
 		return "north"
