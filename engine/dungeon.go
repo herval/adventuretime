@@ -17,10 +17,9 @@ type Dungeon struct {
 }
 
 // Generate a new dungeon
-func NewDungeon() *Dungeon {
-
-	totalRooms := rand.Intn(30) + 10
-	size := 100
+func NewDungeon(size int, totalRooms int) *Dungeon {
+	//totalRooms := rand.Intn(30) + 10
+	//size := 100
 	blueprint := dungeon.NewDungeon(size, totalRooms)
 
 	// build a room map based on the blueprint
@@ -287,21 +286,6 @@ func (room *Room) ContainsDoor(facing Direction) bool {
 	return false
 }
 
-// entryDoor is the door from the *previous room* that leads to the new room
-func randomRoom(comingFromRoom *Room, entryDoor *Door) *Room {
-	util.Debug("Building new room...")
-
-	room := &Room{} // TODO add stuff
-
-	room.Doors = generateDoors(comingFromRoom, room, entryDoor)
-	room.props = generateProps()
-	room.npcs = generateNpcs()
-
-	entryDoor.to = room // god bless side effects :-|
-
-	return room
-}
-
 // =====
 
 // "Door" kinds
@@ -322,20 +306,6 @@ type Door struct {
 	kind   DoorKind
 }
 
-// open a door and move unto the unkown
-// TODO deprecated
-func (self *Door) Open() *Room {
-	if self.to == nil {
-		util.Debug("No 'to' set! Generating...")
-		self.to = randomRoom(self.from, self)
-		util.DebugFmt("New to: %s", self.to)
-	} else {
-		util.DebugFmt("Moving to existing room %s", self.to)
-	}
-
-	return self.to
-}
-
 func NewDoor(from *Room, to *Room, facing Direction, locked bool, kind DoorKind) *Door {
 	return &Door{
 		facing: facing,
@@ -344,46 +314,6 @@ func NewDoor(from *Room, to *Room, facing Direction, locked bool, kind DoorKind)
 		Locked: locked,
 		kind:   kind,
 	}
-}
-
-// TODO deprecated
-func generateDoors(previousRoom *Room, currentRoom *Room, enteringFrom *Door) []*Door {
-	doors := []*Door{}
-
-	// var potentialDirections []int
-
-	// door "from" is always present, of course
-	// if entryDoor != nil {
-	entrance := &Door{
-		facing: DirectionOpposite(enteringFrom.facing),
-		to:     previousRoom,
-		from:   currentRoom,
-		Locked: enteringFrom.Locked,
-		kind:   enteringFrom.kind,
-	}
-	doors = append(doors, entrance)
-	// 1 to 3 Doors on a room (plus the door where you came from, of course)
-	potentialDirections := DirectionsMinus(entrance.facing)
-	// } else {
-	// 	potentialDirections = AllDirections
-	// }
-
-	for _, facing := range potentialDirections {
-		if rand.Int() % 2 == 0 {
-			doors = append(
-				doors,
-				&Door{
-					facing: facing,
-					from:   currentRoom,
-					Locked: false, // TODO lock some for fun
-					kind:   randomDoorKind(),
-				})
-		}
-	}
-
-	util.DebugFmt("Gen Doors: %s", doors)
-
-	return doors
 }
 
 func randomDoorKind() DoorKind {

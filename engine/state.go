@@ -1,6 +1,9 @@
 package engine
 
-import "github.com/herval/adventuretime/util"
+import (
+	"github.com/herval/adventuretime/util"
+	"math/rand"
+)
 
 type GameState struct {
 	Player  *Player
@@ -10,7 +13,11 @@ type GameState struct {
 
 func NewGame() *GameState {
 	util.Debug("Generating dungeon...")
-	dungeon := NewDungeon()
+
+	totalRooms := rand.Intn(30) + 10
+	size := 100
+
+	dungeon := NewDungeon(size, totalRooms)
 
 	util.Debug("Configuring character...")
 	player := NewPlayer(dungeon.Entrance)

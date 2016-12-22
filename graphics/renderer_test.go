@@ -4,10 +4,12 @@ import (
 	"testing"
 	"github.com/herval/adventuretime/util"
 	"github.com/herval/adventuretime/graphics"
+	"github.com/herval/adventuretime/engine"
+	"fmt"
 )
 
 func TestRenderer(t *testing.T) {
-	println("Rendering...")
+	util.Debug("Rendering...")
 
 	scene := graphics.NewScene(`.....................|||..................
 .....................|_||||...............
@@ -32,4 +34,27 @@ func TestRenderer(t *testing.T) {
 	img := renderer.DrawScene(&scene)
 
 	graphics.SaveImage(img, "../new.png")
+}
+
+func TestRandomRendering(t *testing.T) {
+	dungeon := engine.NewDungeon(50, 5)
+
+	dungeon.Blueprint.Print()
+	fmt.Println(graphics.DungeonToBlipmap(dungeon))
+
+	scene := graphics.NewScene(
+		graphics.DungeonToBlipmap(
+			dungeon,
+		),
+	)
+
+	renderer := graphics.NewRenderer(
+		"../resources",
+		(len(dungeon.Blueprint.Grid[0])+10) * graphics.SquareSize,
+		(len(dungeon.Blueprint.Grid)+10) * graphics.SquareSize,
+	)
+
+	img := renderer.DrawScene(&scene)
+
+	graphics.SaveImage(img, "../random.png")
 }

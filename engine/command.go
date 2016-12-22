@@ -78,7 +78,7 @@ func (self *Move) Execute(state *GameState) (returnedState *GameState, result Re
 					Description: "The door is Locked.",
 				}
 			} else {
-				player.CurrentLocation = door.Open()
+				player.CurrentLocation = door.to
 				result = Result{
 					Description: "You walked " + DirectionToStr(self.Direction) + ".",
 				}
