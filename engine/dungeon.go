@@ -27,7 +27,7 @@ func NewDungeon(size int, totalRooms int) *Dungeon {
 	for i := 0; i < len(rooms); i++ {
 		rooms[i] = &Room{
 			Id:  i,
-			ref: blueprint.Rooms[i],
+			Ref: blueprint.Rooms[i],
 		}
 	}
 
@@ -36,7 +36,7 @@ func NewDungeon(size int, totalRooms int) *Dungeon {
 		for j := range AllDirections {
 			// no door on that direction yet
 			if !rooms[i].ContainsDoor(AllDirections[j]) {
-				nextRoom := connectedRoom(blueprint, rooms[i], rooms, AllDirections[j])
+				nextRoom, _ := connectedRoom(blueprint, rooms[i], rooms, AllDirections[j])
 
 				util.DebugFmt("Searching", DirectionToStr(AllDirections[j]), "of", rooms[i].Id)
 				// TODO this will generate different doors on both sides
@@ -53,6 +53,18 @@ func NewDungeon(size int, totalRooms int) *Dungeon {
 						randomDoorKind(),
 					)
 					rooms[i].Doors = append(rooms[i].Doors, door)
+
+					//if !nextRoom.ContainsDoor(wall) {
+					//	door2 := NewDoor(
+					//		nextRoom,
+					//		rooms[i],
+					//		wall,
+					//		false,
+					//		randomDoorKind(),
+					//	)
+					//	nextRoom.Doors = append(nextRoom.Doors, door2)
+					//}
+
 					// TODO generate the reverse door here instead of searching backwards
 				}
 			} else {
@@ -96,14 +108,14 @@ func NewDungeon(size int, totalRooms int) *Dungeon {
 }
 
 func contains(room *Room, x int, y int) bool {
-	return x >= room.ref.X &&
-		y >= room.ref.Y &&
-		x <= room.ref.X + room.ref.Width - 1 &&
-		y <= room.ref.Y + room.ref.Height - 1
+	return x >= room.Ref.X &&
+		y >= room.Ref.Y &&
+		x <= room.Ref.X + room.Ref.Width - 1 &&
+		y <= room.Ref.Y + room.Ref.Height - 1
 }
 
 //recursively move on the same direction until a room is found
-func findRoomForward(blueprint *dungeon.Dungeon, currentX int, currentY int, origin *Room, rooms []*Room, ignoreDirection Direction) *Room {
+func findRoomForward(blueprint *dungeon.Dungeon, currentX int, currentY int, origin *Room, rooms []*Room, ignoreDirection Direction) (*Room, Direction) {
 
 	if blueprint.Grid[currentX][currentY] == 1 {
 		printGrid(blueprint.Grid, currentX, currentY, "X")
@@ -113,8 +125,19 @@ func findRoomForward(blueprint *dungeon.Dungeon, currentX int, currentY int, ori
 		for i := range rooms {
 			if contains(rooms[i], currentX, currentY) {
 				printGrid(blueprint.Grid, currentX, currentY, "!")
-				util.DebugFmt("Found room #", rooms[i].Id, "at", currentX, currentY, rooms[i].Id)
-				return rooms[i]
+				var directionOnNewRoom Direction
+				if !contains(rooms[i], currentX-1, currentY) {
+					directionOnNewRoom = NORTH
+				} else if !contains(rooms[i], currentX+1, currentY) {
+					directionOnNewRoom = SOUTH
+				} else if !contains(rooms[i], currentX, currentY-1) {
+					directionOnNewRoom = EAST
+				} else if !contains(rooms[i], currentX, currentY+1) {
+					directionOnNewRoom = WEST
+				}
+
+				util.DebugFmt("Found room #", rooms[i].Id, "at", currentX, currentY, "facing", DirectionToStr(directionOnNewRoom))
+				return rooms[i], directionOnNewRoom
 			}
 		}
 	}
@@ -142,9 +165,13 @@ func findRoomForward(blueprint *dungeon.Dungeon, currentX int, currentY int, ori
 			return findRoomForward(blueprint, x, y, origin, rooms, back)
 		}
 	}
-	return nil
+	return nil, UNKNOWN
 }
 func printGrid(ints [][]int, x int, y int, current string) {
+	if !util.DEBUGGING {
+		return
+	}
+
 	str := ""
 	for i := range ints {
 		for j := range ints[i] {
@@ -166,31 +193,32 @@ func printGrid(ints [][]int, x int, y int, current string) {
 }
 
 // find a room that connects to the origin room via a corridor
-func connectedRoom(blueprint *dungeon.Dungeon, origin *Room, rooms []*Room, direction Direction) *Room {
+// returns the room + which of its walls was reached
+func connectedRoom(blueprint *dungeon.Dungeon, origin *Room, rooms []*Room, direction Direction) (*Room, Direction) {
 	var startX, endX, startY, endY int = 0, 0, 0, 0
 
 	// search along one of the room walls (luckily they're all rectangular!)
 	switch direction {
 	case NORTH:
-		startX = origin.ref.X
-		endX = origin.ref.X + origin.ref.Width - 1
-		startY = origin.ref.Y + origin.ref.Height
+		startX = origin.Ref.X
+		endX = origin.Ref.X + origin.Ref.Width - 1
+		startY = origin.Ref.Y + origin.Ref.Height
 		endY = startY
 	case SOUTH:
-		startX = origin.ref.X
-		endX = origin.ref.X + origin.ref.Width - 1
-		startY = origin.ref.Y - 1
+		startX = origin.Ref.X
+		endX = origin.Ref.X + origin.Ref.Width - 1
+		startY = origin.Ref.Y - 1
 		endY = startY
 	case EAST:
-		startX = origin.ref.X + origin.ref.Width
+		startX = origin.Ref.X + origin.Ref.Width
 		endX = startX
-		startY = origin.ref.Y
-		endY = origin.ref.Y + origin.ref.Height - 1
+		startY = origin.Ref.Y
+		endY = origin.Ref.Y + origin.Ref.Height - 1
 	case WEST:
-		startX = origin.ref.X - 1
+		startX = origin.Ref.X - 1
 		endX = startX
-		startY = origin.ref.Y
-		endY = origin.ref.Y + origin.ref.Height - 1
+		startY = origin.Ref.Y
+		endY = origin.Ref.Y + origin.Ref.Height - 1
 	}
 
 	util.DebugFmt("Searching around room", origin.Id, startX, endX, startY, endY, DirectionToStr(direction))
@@ -206,7 +234,7 @@ func connectedRoom(blueprint *dungeon.Dungeon, origin *Room, rooms []*Room, dire
 			}
 		}
 	}
-	return nil
+	return nil, UNKNOWN
 }
 
 // =====
@@ -218,7 +246,7 @@ type Room struct {
 	props   []*Prop           // stuff you don't interact with
 	npcs    []*Npc            // things that can kill you
 	details string            // mood and ambiance
-	ref     dungeon.Rectangle // room location on blueprint
+	Ref     dungeon.Rectangle // room location on blueprint
 }
 
 func (r *Room) Describe() string {

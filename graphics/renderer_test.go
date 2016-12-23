@@ -37,21 +37,23 @@ func TestRenderer(t *testing.T) {
 }
 
 func TestRandomRendering(t *testing.T) {
-	dungeon := engine.NewDungeon(50, 5)
+	dungeon := engine.NewDungeon(100, 50)
+	player := engine.NewPlayer(dungeon.Entrance)
 
 	dungeon.Blueprint.Print()
-	fmt.Println(graphics.DungeonToBlipmap(dungeon))
+	fmt.Println(graphics.DungeonToBlipmap(dungeon, player))
 
 	scene := graphics.NewScene(
 		graphics.DungeonToBlipmap(
 			dungeon,
+			player,
 		),
 	)
 
 	renderer := graphics.NewRenderer(
 		"../resources",
-		(len(dungeon.Blueprint.Grid[0])+10) * graphics.SquareSize,
-		(len(dungeon.Blueprint.Grid)+10) * graphics.SquareSize,
+		(len(dungeon.Blueprint.Grid[0]) + 10) * graphics.SquareSize,
+		(len(dungeon.Blueprint.Grid) + 10) * graphics.SquareSize,
 	)
 
 	img := renderer.DrawScene(&scene)

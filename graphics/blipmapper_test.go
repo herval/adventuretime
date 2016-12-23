@@ -11,7 +11,7 @@ func TestBlipmapping(t *testing.T) {
 
 	dungeon := engine.NewDungeon(50, 3)
 
-	str := graphics.DungeonToBlipmap(dungeon)
+	str := graphics.DungeonToBlipmap(dungeon, nil)
 	if len(str) == 0 {
 		t.Fail()
 	}
