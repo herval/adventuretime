@@ -11,6 +11,7 @@ import (
 )
 
 type Dungeon struct {
+	Name      string
 	Entrance  *Room
 	Rooms     []*Room
 	Blueprint *dungeon.Dungeon
@@ -101,9 +102,10 @@ func NewDungeon(size int, totalRooms int) *Dungeon {
 	//util.DebugFmt("Init dungeon: %s", mainHall)
 
 	return &Dungeon{
-		Entrance:  entrance,
-		Rooms:     rooms,
-		Blueprint: blueprint,
+		Name:        RandomName(),
+		Entrance:    entrance,
+		Rooms:       rooms,
+		Blueprint:   blueprint,
 	}
 }
 
@@ -126,13 +128,13 @@ func findRoomForward(blueprint *dungeon.Dungeon, currentX int, currentY int, ori
 			if contains(rooms[i], currentX, currentY) {
 				printGrid(blueprint.Grid, currentX, currentY, "!")
 				var directionOnNewRoom Direction
-				if !contains(rooms[i], currentX-1, currentY) {
+				if !contains(rooms[i], currentX - 1, currentY) {
 					directionOnNewRoom = NORTH
-				} else if !contains(rooms[i], currentX+1, currentY) {
+				} else if !contains(rooms[i], currentX + 1, currentY) {
 					directionOnNewRoom = SOUTH
-				} else if !contains(rooms[i], currentX, currentY-1) {
+				} else if !contains(rooms[i], currentX, currentY - 1) {
 					directionOnNewRoom = EAST
-				} else if !contains(rooms[i], currentX, currentY+1) {
+				} else if !contains(rooms[i], currentX, currentY + 1) {
 					directionOnNewRoom = WEST
 				}
 
