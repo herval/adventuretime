@@ -8,6 +8,7 @@ import (
 
 	"github.com/herval/adventuretime/engine"
 	"github.com/herval/adventuretime/twitter"
+	"github.com/herval/adventuretime/graphics"
 )
 
 // Follow commands via replies
@@ -96,6 +97,15 @@ func commandLineGame() {
 	parser := engine.StandardParser{}
 	controller := engine.NewController()
 
+	renderer := graphics.NewRenderer(
+		"resources",
+		(len(controller.State.Dungeon.Blueprint.Grid[0]) + 10) * graphics.SquareSize,
+		(len(controller.State.Dungeon.Blueprint.Grid) + 10) * graphics.SquareSize,
+	)
+
+
+	fmt.Println("Welcome to " + controller.State.Dungeon.Name)
+
 	for controller.State.Player.Hp > 0 {
 		fmt.Println(controller.State.Describe())
 		fmt.Print("> ")
@@ -103,5 +113,15 @@ func commandLineGame() {
 		cmd, _ := reader.ReadString('\n')
 		_, op := controller.Execute(parser.ParseCommand(cmd))
 		fmt.Print(fmt.Sprintf("\n%s\n\n", op.Description))
+
+		// TODO encapsulate all that
+		scene := graphics.NewScene(
+			graphics.DungeonToBlipmap(
+				controller.State.Dungeon,
+				controller.State.Player,
+			),
+		)
+		img := renderer.DrawScene(&scene)
+		graphics.SaveImage(img, "state.png")
 	}
 }
