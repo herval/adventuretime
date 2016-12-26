@@ -3,10 +3,6 @@ package graphics
 import (
 	"image"
 	"image/draw"
-	"image/png"
-	"os"
-	"path/filepath"
-
 	"github.com/herval/adventuretime/util"
 )
 
@@ -195,16 +191,16 @@ func (s *Spritemap) BlipInto(dst *image.RGBA, x int, y int, sprite *Sprite) {
 		if shadow != nil {
 			// TODO darken shadow (tint)
 			// mask := image.NewUniform(color.RGBA{100, 200, 100, 200})
-			shadowOffset := (shadow.H / 4) + SquareSize/5
+			shadowOffset := (shadow.H / 4) + SquareSize / 5
 			pointOnSpritesheet := image.Point{shadow.X, shadow.Y}
-			position := image.Rect(x, y+shadowOffset, x+shadow.W, y+shadow.H+shadowOffset)
+			position := image.Rect(x, y + shadowOffset, x + shadow.W, y + shadow.H + shadowOffset)
 			// draw.DrawMask(dst, position, s.Spritesheet, pointOnSpritesheet, mask, image.Point{}, draw.Over)
 			draw.Draw(dst, position, s.Spritesheet, pointOnSpritesheet, draw.Over)
 		}
 
 		// blip a piece of the sprite sheet into a position on the dst image
 		pointOnSpritesheet := image.Point{sheetPosition.X, sheetPosition.Y}
-		position := image.Rect(basePosX, basePosY, basePosX+sheetPosition.W, basePosY+sheetPosition.H)
+		position := image.Rect(basePosX, basePosY, basePosX + sheetPosition.W, basePosY + sheetPosition.H)
 		draw.Draw(dst, position, s.Spritesheet, pointOnSpritesheet, draw.Over)
 	}
 }
@@ -228,20 +224,7 @@ func (s *Spritemap) frameFor(sprite *Sprite) *Dimensions {
 
 // load the default spritemap file
 func LoadSpritemap(spritesPath string) Spritemap {
-	// load the map
-	loader := FramesLoader{}
-	data := loader.Parse(spritesPath + "/sprites.json")
-
-	// load the image file
-	path, _ := filepath.Abs(spritesPath + "/sprites.png")
-	sheet, _ := os.Open(path)
-	defer sheet.Close()
-	spritesheet, _ := png.Decode(sheet)
-	// copy spritesheet to memory so we can subimage pieces of it
-	sprites := image.NewRGBA(image.Rect(0, 0, spritesheet.Bounds().Size().X, spritesheet.Bounds().Size().Y))
-	draw.Draw(sprites, sprites.Bounds(), spritesheet, image.Point{0, 0}, draw.Src)
-
-	// TODO handle errors
+	data, sprites := loadSheet(spritesPath, "sprites")
 
 	return NewSpritemap(data, sprites)
 }

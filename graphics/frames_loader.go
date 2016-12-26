@@ -6,6 +6,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"image/png"
+	"image"
+	"image/draw"
 )
 
 type FramesLoader struct {
@@ -42,4 +45,23 @@ type Frame struct {
 
 type jsonobject struct {
 	Frames map[string]Frame
+}
+
+func loadSheet(spritesPath string, filename string) (map[string]Frame, *image.RGBA){
+	// load the map
+	loader := FramesLoader{}
+	data := loader.Parse(fmt.Sprintf("%s/%s.json", spritesPath, filename))
+
+	// load the image file
+	path, _ := filepath.Abs(fmt.Sprintf("%s/%s.png", spritesPath, filename))
+	sheet, _ := os.Open(path)
+	defer sheet.Close()
+	spritesheet, _ := png.Decode(sheet)
+	// copy spritesheet to memory so we can subimage pieces of it
+	sprites := image.NewRGBA(image.Rect(0, 0, spritesheet.Bounds().Size().X, spritesheet.Bounds().Size().Y))
+	draw.Draw(sprites, sprites.Bounds(), spritesheet, image.Point{0, 0}, draw.Src)
+
+	// TODO handle errors
+
+	return data, sprites
 }
