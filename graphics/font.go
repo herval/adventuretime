@@ -2,7 +2,6 @@ package graphics
 
 import (
 	"image"
-	"image/draw"
 	"github.com/herval/adventuretime/util"
 )
 

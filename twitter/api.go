@@ -4,6 +4,11 @@ import (
 	"time"
 
 	"github.com/ChimeraCoder/anaconda"
+	"image"
+	"net/url"
+	"strconv"
+	"log"
+	"github.com/herval/adventuretime/util"
 )
 
 type Api struct {
@@ -21,6 +26,23 @@ func NewApi(consumerKey string, consumerSecret string, accessToken string, token
 
 func (self *Api) Post(message string) {
 	self.api.PostTweet(message, nil)
+}
+
+func (self *Api) PostWithMedia(message string, img *image.RGBA) {
+	data, err := util.ImageToBase64(img)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	mediaResponse, err := self.api.UploadMedia(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	v := url.Values{}
+	v.Set("media_ids", strconv.FormatInt(mediaResponse.MediaID, 10))
+
+	self.api.PostTweet(message, v)
 }
 
 func (self *Api) MentionsStream(since time.Time) <-chan anaconda.Tweet {

@@ -4,8 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"time"
-
 	"github.com/herval/adventuretime/engine"
 	"github.com/herval/adventuretime/twitter"
 	"github.com/herval/adventuretime/graphics"
@@ -60,49 +58,58 @@ func main() {
 }
 
 func twitterGame() {
-	started := time.Now()
-
 	api := twitter.NewApi(
 		os.Getenv("TWITTER_CONSUMER_KEY"),
 		os.Getenv("TWITTER_CONSUMER_SECRET"),
 		os.Getenv("TWITTER_ACCESS_TOKEN"),
 		os.Getenv("TWITTER_TOKEN_SECRET"),
 	)
-	mentions := api.MentionsStream(started)
 
-	parser := twitter.TweetParser{
-		Name: os.Getenv("TWITTER_SCREEN_NAME"),
-	}
 	controller := engine.NewController()
+	viewport := graphics.NewViewport(controller)
 
-	api.Post(controller.State.Describe())
+	img := viewport.DrawDungeon()
 
-	for {
-		mention := <-mentions
+	api.PostWithMedia(controller.State.Dungeon.Name, img)
 
-		_, op := controller.Execute(parser.ParseCommand(mention.Text))
-
-		api.Post(fmt.Sprintf("@%s %s", mention.User.ScreenName, op.Description))
-
-		if op.Invalid {
-			fmt.Println("Invalid command: ", mention.Text)
-		} else {
-			api.Post(controller.State.Describe())
-		}
-	}
+	// TODO Twitter Game is not there yet!
+	//started := time.Now()
+	//
+	//api := twitter.NewApi(
+	//	os.Getenv("TWITTER_CONSUMER_KEY"),
+	//	os.Getenv("TWITTER_CONSUMER_SECRET"),
+	//	os.Getenv("TWITTER_ACCESS_TOKEN"),
+	//	os.Getenv("TWITTER_TOKEN_SECRET"),
+	//)
+	//mentions := api.MentionsStream(started)
+	//
+	//parser := twitter.TweetParser{
+	//	Name: os.Getenv("TWITTER_SCREEN_NAME"),
+	//}
+	//controller := engine.NewController()
+	//
+	//api.Post(controller.State.Describe())
+	//
+	//for {
+	//	mention := <-mentions
+	//
+	//	_, op := controller.Execute(parser.ParseCommand(mention.Text))
+	//
+	//	api.Post(fmt.Sprintf("@%s %s", mention.User.ScreenName, op.Description))
+	//
+	//	if op.Invalid {
+	//		fmt.Println("Invalid command: ", mention.Text)
+	//	} else {
+	//		api.Post(controller.State.Describe())
+	//	}
+	//}
 }
 
 func commandLineGame() {
 	reader := bufio.NewReader(os.Stdin)
 	parser := engine.StandardParser{}
 	controller := engine.NewController()
-
-	renderer := graphics.NewRenderer(
-		"resources",
-		(len(controller.State.Dungeon.Blueprint.Grid[0]) + 10) * graphics.SquareSize,
-		(len(controller.State.Dungeon.Blueprint.Grid) + 10) * graphics.SquareSize,
-	)
-
+	viewport := graphics.NewViewport(controller)
 
 	fmt.Println("Welcome to " + controller.State.Dungeon.Name)
 
@@ -114,14 +121,7 @@ func commandLineGame() {
 		_, op := controller.Execute(parser.ParseCommand(cmd))
 		fmt.Print(fmt.Sprintf("\n%s\n\n", op.Description))
 
-		// TODO encapsulate all that
-		scene := graphics.NewScene(
-			graphics.DungeonToBlipmap(
-				controller.State.Dungeon,
-				controller.State.Player,
-			),
-		)
-		img := renderer.DrawScene(&scene)
+		img := viewport.DrawDungeon()
 		graphics.SaveImage(img, "state.png")
 	}
 }
