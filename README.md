@@ -8,4 +8,4 @@ Sprites by @Calciumtrice ([Dungeon tileset](http://opengameart.org/content/dunge
 
 Font by [Clint Bellanger & co](http://opengameart.org/content/boxy-bold-truetype-font)
 
-Spritesheets made with (TexturePacker)[https://www.codeandweb.com/texturepacker] and [ShoeBox](http://renderhjs.net/shoebox/)
+Spritesheets made with [TexturePacker](https://www.codeandweb.com/texturepacker) and [ShoeBox](http://renderhjs.net/shoebox/)
